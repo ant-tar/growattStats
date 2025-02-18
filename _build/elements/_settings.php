@@ -1,9 +1,9 @@
 <?php
 
 return [
-    'some_setting' => [
-        'xtype' => 'combo-boolean',
-        'value' => true,
+    'api_key' => [
+        'xtype' => 'textfield',
+        'value' => '',
         'area' => 'growattstats_main',
     ],
 ];

@@ -2,11 +2,11 @@
 
 return [
     'growattStats' => [
-        'description' => '',
+        'description' => 'desc',
         'type' => 'file',
-        'content' => '',
+        'content' => 'content',
         'namespace' => 'growattstats',
-        'lexicon' => 'growattstats:dashboards',
-        'size' => 'half',
+        'lexicon' => 'growattstats:default',
+        'size' => 'double',
     ],
 ];

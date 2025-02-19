@@ -1,7 +1,1 @@
---------------------
-growattStats
---------------------
-Author: John Doe <john@doe.com>
---------------------
-
-A basic Extra for MODx Revolution.
+Growatt energy generation statistics for frontend and backend

@@ -1,12 +1,9 @@
 <?php
 
 return [
-    'tpl.growattStats.item' => [
-        'file' => 'item',
+    'growattShowChart' => [
+        'file' => 'growattshowchart',
         'description' => '',
     ],
-    'tpl.growattStats.office' => [
-        'file' => 'office',
-        'description' => '',
-    ],
+    
 ];

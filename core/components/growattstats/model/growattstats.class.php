@@ -4,215 +4,194 @@ class growattStats
 {
     /** @var modX $modx */
     public $modx;
-
+    /** @var array $config */
+    public $config = [];
 
     /**
-     * @param modX $modx
+     * @param modX  $modx
      * @param array $config
      */
-    function __construct(modX &$modx, array $config = [])
+    public function __construct(modX &$modx, array $config = [])
     {
         $this->modx =& $modx;
-        $corePath = MODX_CORE_PATH . 'components/growattstats/';
-        $assetsUrl = MODX_ASSETS_URL . 'components/growattstats/';
+
+        $corePath   = $modx->getOption('growattstats_core_path', null,
+            MODX_CORE_PATH . 'components/growattstats/');
+        $assetsUrl  = $modx->getOption('growattstats_assets_url', null,
+            MODX_ASSETS_URL . 'components/growattstats/');
+        $assetsPath = $modx->getOption('growattstats_assets_path', null,
+            MODX_ASSETS_PATH . 'components/growattstats/');
 
         $this->config = array_merge([
-            'corePath' => $corePath,
-            'modelPath' => $corePath . 'model/',
-            'processorsPath' => $corePath . 'processors/',
-
-            'connectorUrl' => $assetsUrl . 'connector.php',
-            'assetsUrl' => $assetsUrl,
-            'cssUrl' => $assetsUrl . 'css/',
-            'jsUrl' => $assetsUrl . 'js/',
+            'corePath'    => $corePath,
+            'modelPath'   => $corePath . 'model/',
+            'assetsUrl'   => $assetsUrl,
+            'assetsPath'  => $assetsPath,
+            'cssUrl'      => $assetsUrl . 'css/',
+            'jsUrl'       => $assetsUrl . 'js/',
+            'dataFile'    => $assetsPath . 'data/chart-data.js',
+            'dataUrl'     => $assetsUrl . 'data/chart-data.js',
         ], $config);
 
-        $this->modx->addPackage('growattstats', $this->config['modelPath']);
         $this->modx->lexicon->load('growattstats:default');
     }
-	public function getStats(){
-		$stats = 'ok	';
 
-		$this->modx->regClientCSS('/assets/components/growattstats/lumino/css/bootstrap.css');
-	///	$this->modx->regClientCSS('/assets/components/growattstats/lumino/css/datepicker3.css');
-		$this->modx->regClientCSS('/assets/components/growattstats/lumino/css/styles.css');
+    /**
+     * Получить данные с Growatt API.
+     * plant_id и token_id берутся из системных настроек MODX.
+     *
+     * @return array|false
+     */
+    public function fetchApiData()
+    {
+        $plantId = $this->modx->getOption('growattstats_plant_id', null, '');
+        $token   = $this->modx->getOption('growattstats_token_id', null, '');
 
-		$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"/assets/components/growattstats/lumino/js/jquery-1.11.1.min.js\"></script>", true);
-		$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"/assets/components/growattstats/lumino/js/bootstrap.min.js\"></script>", true);
-		//$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"/assets/components/growattstats/lumino/js/chart.min.js\"></script>", true);
-		//$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"/assets/components/growattstats/lumino/js/chart-data.js\"></script>", true);
-///		$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"/assets/components/growattstats/lumino/js/easypiechart.js\"></script>", true);
-	
-///		$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"/assets/components/growattstats/lumino/js/bootstrap-datepicker.js\"></script>", true);
-		
-		$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"//code.highcharts.com/stock/highstock.js\"></script>", true);
-	//	$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"//code.highcharts.com/stock/modules/exporting.js\"></script>", true);
-		$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"/assets/components/growattstats/data/chart-data.js\"></script>", true);
-		
-	//	require_once $this->config['modelPath'].'/growattstats/minishop2.class.php';
-	//	$stats_class = $this->modx->getOption('growattstats_namespace', null, 'minishop2_shop');
-	///	if ($stats_class != 'minishop2_shop') {$this->loadCustomClasses($stats_class);}
+        if (empty($plantId) || empty($token)) {
+            $this->modx->log(modX::LOG_LEVEL_ERROR,
+                '[growattStats] Системные настройки growattstats_plant_id или growattstats_token_id не заданы');
+            return false;
+        }
 
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL            => 'https://openapi.growatt.com/v1/plant/data?plant_id=' . urlencode($plantId),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING       => '',
+            CURLOPT_MAXREDIRS      => 10,
+            CURLOPT_TIMEOUT        => 15,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST  => 'GET',
+            CURLOPT_HTTPHEADER     => ['token: ' . $token],
+        ]);
 
-	//	$this->shop = new $stats_class($this, $this->config);
-	///	if (!($this->shop instanceof statsInterface) || $this->shop->initialize($ctx) !== true) {
-	//		$this->modx->log(modX::LOG_LEVEL_ERROR, 'Could not initialize shop class: "'.$stats_class.'"');
-	///		return false;
-	//	}
+        $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
 
-	//	$stats = $this->shop->getStats();
-/*
-		foreach($stats['total_counts'] as $status_key => $status){
-			foreach($stats['stats_month'] as $month_key => $month){
-		        $labels[$month_key] = '"'.$month_key.'"';
-		        if(count($month[$status_key]) > 0){
-		            $dataCount[$status_key][$month_key] = $month[$status_key]['count_orders'];
-		        }else{
-		            $dataCount[$status_key][$month_key] = 0;
-		        }
+        if (!$response || $httpCode !== 200) {
+            $this->modx->log(modX::LOG_LEVEL_ERROR,
+                '[growattStats] Ошибка API, HTTP код: ' . $httpCode);
+            return false;
+        }
 
-		        $dataCost[$status_key][$month_key] = !empty($month[$status_key]['total_cost']) ? $month[$status_key]['total_cost'] : 0;
-		    }
-		    $datasetsCount[] = '{
-				label: "'.$status['name'].'",
-				fillColor : "rgba(220,220,220,0.2)",
-				strokeColor : "#'.$status['color'].'",
-				pointColor : "#'.$status['color'].'",
-				pointStrokeColor : "#'.$status['color'].'",
-				pointHighlightFill : "#'.$status['color'].'",
-				pointHighlightStroke : "#'.$status['color'].'",
-				data : [0,'.implode(",", $dataCount[$status_key]).'],
-				options:{
-				    scales: {
-				        y: {
-				            title: "TITLE"
-				            
-				        }
-				    }
-				}    
-			}';
-			$datasetsCost[] = '{
-				label: "'.$status['name'].'",
-				fillColor : "rgba(220,220,220,0.2)",
-				strokeColor : "#'.$status['color'].'",
-				pointColor : "#'.$status['color'].'",
-				pointStrokeColor : "#'.$status['color'].'",
-				pointHighlightFill : "#'.$status['color'].'",
-				pointHighlightStroke : "#'.$status['color'].'",
-				data : [0,'.implode(",", $dataCost[$status_key]).']
-			}';
-		}
-		
-*/		
-		$datasetsCount = implode(",", $datasetsCount);
-		$datasetsCost = implode(",", $datasetsCost);
-		$labels = '0,'.implode(",", $labels);
+        $decoded = json_decode($response, true);
+        if (empty($decoded['data'])) {
+            $this->modx->log(modX::LOG_LEVEL_ERROR,
+                '[growattStats] API вернул пустой data, ответ: ' . $response);
+            return false;
+        }
 
-		$this->modx->regClientStartupScript('<script type="text/javascript">
-			var lineChartCount = {
-				labels: ['.$labels.'],
-				datasets : [
-					'.$datasetsCount.'
-				]
-				
-			}
-			var lineChartCost = {
-				labels: ['.$labels.'],
-				datasets : [
-					'.$datasetsCost.'
-				]
-			
-			}
+        return $decoded['data'];
+    }
 
-			window.onload = function(){
-				//var chart1 = document.getElementById("line-chart").getContext("2d");
-				//window.myLine = new Chart(chart1).Line(lineChartCount, {
-			//		responsive: true
-			//	});
-	
+    /**
+     * Зарегистрировать CSS и JS ресурсы на фронтенде.
+     */
+    public function registerAssets()
+    {
+        $this->modx->regClientCSS($this->config['cssUrl'] . 'bootstrap.css');
+        $this->modx->regClientCSS($this->config['cssUrl'] . 'styles.css');
+        $this->modx->regClientStartupScript(
+            '<script src="' . $this->config['jsUrl'] . 'jquery-1.11.1.min.js"></script>', true);
+        $this->modx->regClientStartupScript(
+            '<script src="' . $this->config['jsUrl'] . 'bootstrap.min.js"></script>', true);
+        $this->modx->regClientStartupScript(
+            '<script src="//code.highcharts.com/stock/highstock.js"></script>', true);
+        $this->modx->regClientStartupScript(
+            '<script src="' . $this->config['dataUrl'] . '"></script>', true);
+    }
 
-				var dashboard = $(".js-dashboard-stats");
-				var d_height = dashboard.height();
-				var d_parent = dashboard.parents(".dashboard-block");
-				d_parent.addClass("dashboard-stats");
-				d_parent.find("h3").hide();
-				d_parent.find(".body").css("max-height", d_height+50);
-				d_parent.height(d_height);
-				
-				
-				Highcharts.stockChart("container", {
-                  chart: {
-                    zoomType: "x"
-                  },
-                  xAxis: {
-                    minRange: 3600
-                  },
-                
-                  rangeSelector: {
-                    selected: 1,
-                    labelStyle: {
-                         display: "none"
-                      }
-                  },
-                  
-                  plotOptions: {
-                        series: {
-                            fillColor: {
-                                linearGradient: [0, 0, 0, 300],
-                                stops: [
-                                    [0, Highcharts.getOptions().colors[0]],
-                                    [
-                                        1,
-                                        Highcharts.color(Highcharts.getOptions().colors[0])
-                                            .setOpacity(0).get("rgba")
-                                    ]
-                                ]
-                            }
-                        }
-                    },
-                
-                  series: [{
-                    name: "Generation",
-                    data: usdeur,
-                    color: "#2e5a90"
-                  }]
-                });
+    /**
+     * Зарегистрировать скрипт инициализации графика Highcharts.
+     * Вызывать после registerAssets().
+     */
+    public function registerChartScript()
+    {
+        $script = '<script>
+(function () {
+    function initGrowattChart() {
+        if (typeof Highcharts === "undefined" || typeof usdeur === "undefined") {
+            setTimeout(initGrowattChart, 100);
+            return;
+        }
+        Highcharts.stockChart("growattstats-container", {
+            chart: {zoomType: "x"},
+            xAxis: {minRange: 3600},
+            rangeSelector: {selected: 1, labelStyle: {display: "none"}},
+            plotOptions: {
+                series: {
+                    fillColor: {
+                        linearGradient: [0, 0, 0, 300],
+                        stops: [
+                            [0, Highcharts.getOptions().colors[0]],
+                            [1, Highcharts.color(Highcharts.getOptions().colors[0])
+                                .setOpacity(0).get("rgba")]
+                        ]
+                    }
+                }
+            },
+            series: [{name: "Generation (kWh)", data: usdeur, color: "#2e5a90"}]
+        });
+    }
+    initGrowattChart();
+}());
+</script>';
+        $this->modx->regClientScript($script, true);
+    }
 
-				
+    /**
+     * Обновить файл chart-data.js новой точкой данных.
+     *
+     * @param array $apiData  Данные из fetchApiData()
+     * @return bool
+     */
+    public function updateChartData(array $apiData)
+    {
+        $dataFile   = $this->config['dataFile'];
+        $todayEnergy = isset($apiData['today_energy']) ? (float)$apiData['today_energy'] : 0;
+        $dateJs     = 'Date.UTC(' . date('Y') . ',' . (date('n') - 1) . ',' . date('j') . ')';
+        $newPoint   = [$dateJs, $todayEnergy];
 
+        // Загрузить существующие данные из файла
+        $existingData = [];
+        if (file_exists($dataFile)) {
+            $content = file_get_contents($dataFile);
+            $start   = strpos($content, '[');
+            $end     = strrpos($content, ']');
+            if ($start !== false && $end !== false) {
+                $json = substr($content, $start, $end - $start + 1);
+                // Восстановить JSON: Date.UTC(...) не является валидным JSON,
+                // поэтому оборачиваем в строки
+                $json = str_replace('),', ')","',  $json);
+                $json = str_replace('[[',  '[["',  $json);
+                $json = str_replace('[Date', '["Date', $json);
+                $json = str_replace(']]',  '"]]',  $json);
+                $json = str_replace('],',  '"],',  $json);
+                $existingData = json_decode($json, true) ?: [];
+            }
+        }
 
-			};
-		</script>', true);
+        // Обновить или добавить точку
+        $found = false;
+        foreach ($existingData as $k => $point) {
+            if ($point[0] === $dateJs) {
+                if ($todayEnergy >= (float)$point[1]) {
+                    $existingData[$k] = $newPoint;
+                }
+                $found = true;
+                break;
+            }
+        }
+        if (!$found) {
+            $existingData[] = $newPoint;
+        }
 
+        // Записать файл: убираем кавычки вокруг Date.UTC(...)
+        $jsonOut = json_encode($existingData);
+        $jsOut   = 'var usdeur = ' . str_replace('"', '', $jsonOut) . ';';
 
-		return $stats;
-	}
-
-	public function loadCustomClasses($dir) {
-		$files = scandir($this->config['customPath'] . $dir);
-		foreach ($files as $file) {
-			if (preg_match('/.*?\.class\.php$/i', $file)) {
-				include_once($this->config['customPath'] . $dir . '/' . $file);
-			}
-		}
-	}
-
-	function month($month){
-		$months = array(
-			'1' => 'Январь',
-			'2' => 'Февраль',
-			'3' => 'Март',
-			'4' => 'Апрель',
-			'5' => 'Май',
-			'6' => 'Июнь',
-			'7' => 'Июль',
-			'8' => 'Август',
-			'9' => 'Сентябрь',
-			'10' => 'Октябрь',
-			'11' => 'Ноябрь',
-			'12' => 'Декабрь',
-		);
-		return $months[$month];
-	}
-
+        return file_put_contents($dataFile, $jsOut) !== false;
+    }
 }

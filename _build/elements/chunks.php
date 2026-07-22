@@ -5,5 +5,9 @@ return [
         'file' => 'growattshowchart',
         'description' => '',
     ],
+    'growattShowWidget' => [
+        'file' => 'growattshowwidget',
+        'description' => '',
+    ],
     
 ];

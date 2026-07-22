@@ -7,20 +7,25 @@ $growattstats = $modx->getService(
     $modx->getOption('growattstats_core_path', null, MODX_CORE_PATH . 'components/growattstats/') . 'model/'
 );
 if (!$growattstats) {
-    echo $modx->lexicon('growattstats_err_class');
-    return;
+    return $modx->lexicon('growattstats_err_class');
 }
 
 $data = $growattstats->getDisplayData([
     'plantName' => $modx->getOption('growattstats_plant_name', null, ''),
 ]);
 if (empty($data)) {
-    echo $modx->lexicon('growattstats_err_api');
-    return;
+    return $modx->lexicon('growattstats_err_api');
 }
 
-$growattstats->registerAssets();
-$growattstats->registerChartScript($data['series'] ?? []);
+$tpl = $modx->getOption('tpl', $scriptProperties, 'growattShowWidget');
 
-echo $modx->getChunk('growattShowChart', $data);
+$output = $modx->getChunk($tpl, $data);
+if (trim((string)$output) === '') {
+    return $modx->lexicon('growattstats_err_tpl');
+}
+
+$output .= $growattstats->getAssetTags();
+$output .= $growattstats->getChartScript($data['series'] ?? []);
+
+return $output;
 

@@ -3,3 +3,5 @@ Changelog for growattStats
 1.0.0-pl
 ==============
 - Initial release.
+- Added Growatt API wrapper, JS cache, frontend chart and dashboard widget.
+- Added CronManager-based cache refresh and manual snippet refresh support.

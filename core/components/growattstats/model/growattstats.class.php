@@ -26,7 +26,7 @@ class growattStats
             'assetsPath' => $assetsPath,
             'cssUrl' => $assetsUrl . 'css/',
             'jsUrl' => $assetsUrl . 'js/',
-            'dataFile' => $assetsPath . 'data/chart-data.json',
+            'dataFile' => $assetsPath . 'data/chart-data.js',
         ], $config);
 
         $this->modx->lexicon->load('growattstats:default');
@@ -49,14 +49,321 @@ class growattStats
         ) * 1000;
     }
 
-    protected function loadLegacyChartPayload()
+    protected function buildApiUrl($url, array $query = [])
     {
-        $legacyFile = preg_replace('#\.json$#', '.js', $this->config['dataFile']);
-        if (!$legacyFile || !file_exists($legacyFile)) {
-            return [];
+        $url = trim((string)$url);
+        if ($url === '') {
+            return '';
         }
 
-        $content = (string)file_get_contents($legacyFile);
+        if (!empty($query)) {
+            $glue = (strpos($url, '?') === false) ? '?' : '&';
+            $url .= $glue . http_build_query($query);
+        }
+
+        return $url;
+    }
+
+    protected function getApiHeaders(array $headers = [])
+    {
+        $result = [
+            'Accept: application/json',
+        ];
+
+        $token = trim((string)$this->getSetting('token', ''));
+        if ($token !== '') {
+            $result[] = 'token: ' . $token;
+        }
+
+        foreach ($headers as $header) {
+            $header = trim((string)$header);
+            if ($header !== '') {
+                $result[] = $header;
+            }
+        }
+
+        return array_values(array_unique($result));
+    }
+
+    public function requestApi($method, $url, array $query = [], array $body = [], array $headers = [], array $options = [])
+    {
+        $method = strtoupper(trim((string)$method ?: 'GET'));
+        if (!in_array($method, ['GET', 'POST', 'PUT'], true)) {
+            return [
+                'success' => false,
+                'error' => 'Unsupported HTTP method: ' . $method,
+                'http_code' => 0,
+                'method' => $method,
+                'url' => $url,
+            ];
+        }
+
+        $requestUrl = $this->buildApiUrl($url, $query);
+        if ($requestUrl === '') {
+            return [
+                'success' => false,
+                'error' => 'Empty API URL',
+                'http_code' => 0,
+                'method' => $method,
+                'url' => $requestUrl,
+            ];
+        }
+
+        $timeout = isset($options['timeout']) ? (int)$options['timeout'] : 20;
+        $curl = curl_init();
+        $curlHeaders = $this->getApiHeaders($headers);
+        $curlOptions = [
+            CURLOPT_URL => $requestUrl,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => $timeout,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => $method,
+            CURLOPT_HTTPHEADER => $curlHeaders,
+        ];
+
+        if ($method !== 'GET' && !empty($body)) {
+            $bodyFormat = strtolower((string)($options['body_format'] ?? 'json'));
+            if ($bodyFormat === 'form') {
+                $curlOptions[CURLOPT_POSTFIELDS] = http_build_query($body);
+                $curlHeaders[] = 'Content-Type: application/x-www-form-urlencoded';
+                $curlOptions[CURLOPT_HTTPHEADER] = $curlHeaders;
+            } else {
+                $encodedBody = json_encode($body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                if ($encodedBody === false) {
+                    return [
+                        'success' => false,
+                        'error' => 'Could not encode API body to JSON',
+                        'http_code' => 0,
+                        'method' => $method,
+                        'url' => $requestUrl,
+                    ];
+                }
+                $curlOptions[CURLOPT_POSTFIELDS] = $encodedBody;
+                $curlHeaders[] = 'Content-Type: application/json';
+                $curlOptions[CURLOPT_HTTPHEADER] = $curlHeaders;
+            }
+        }
+
+        curl_setopt_array($curl, $curlOptions);
+
+        $response = curl_exec($curl);
+        $httpCode = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($curl);
+        curl_close($curl);
+
+        if ($response === false || $response === null || $httpCode < 200 || $httpCode >= 300) {
+            return [
+                'success' => false,
+                'error' => $curlError !== '' ? $curlError : 'Unexpected HTTP code: ' . $httpCode,
+                'http_code' => $httpCode,
+                'method' => $method,
+                'url' => $requestUrl,
+                'raw' => is_string($response) ? $response : '',
+            ];
+        }
+
+        $decoded = json_decode((string)$response, true);
+        $apiError = null;
+        if (is_array($decoded)) {
+            $errorCode = $decoded['error_code'] ?? null;
+            $errorMsg = isset($decoded['error_msg']) ? trim((string)$decoded['error_msg']) : '';
+            if ((is_numeric($errorCode) && (int)$errorCode !== 0) || $errorMsg !== '') {
+                $apiError = trim('Growatt API error' . ($errorCode !== null ? ' #' . $errorCode : '') . ($errorMsg !== '' ? ': ' . $errorMsg : ''));
+            }
+        }
+
+        return [
+            'success' => true,
+            'http_code' => $httpCode,
+            'method' => $method,
+            'url' => $requestUrl,
+            'raw' => (string)$response,
+            'decoded' => is_array($decoded) ? $decoded : null,
+            'api_error' => $apiError,
+        ];
+    }
+
+    protected function getGrowattCommandMap()
+    {
+        return [
+            'plant_data' => [
+                'method' => 'GET',
+                'url' => $this->getSetting('api_url', 'https://openapi.growatt.com/v1/plant/data'),
+                'query' => [
+                    'plant_id' => $this->getSetting('plant_id', ''),
+                ],
+            ],
+            'plant_energy' => [
+                'method' => 'GET',
+                'url' => 'https://openapi.growatt.com/v1/plant/energy',
+                'query' => [
+                    'plant_id' => $this->getSetting('plant_id', ''),
+                ],
+            ],
+            'plant_power' => [
+                'method' => 'GET',
+                'url' => 'https://openapi.growatt.com/v1/plant/power',
+                'query' => [
+                    'plant_id' => $this->getSetting('plant_id', ''),
+                ],
+            ],
+            'plant_details' => [
+                'method' => 'GET',
+                'url' => 'https://openapi.growatt.com/v1/plant/details',
+                'query' => [
+                    'plant_id' => $this->getSetting('plant_id', ''),
+                ],
+            ],
+            'device_inverter_data' => [
+                'method' => 'GET',
+                'url' => 'https://openapi.growatt.com/v1/device/inverter/data',
+            ],
+            'device_inverter_day_energy' => [
+                'method' => 'GET',
+                'url' => 'https://openapi.growatt.com/v1/device/inverter/day_energy',
+            ],
+            'device_inverter_details' => [
+                'method' => 'GET',
+                'url' => 'https://openapi.growatt.com/v1/device/inverter/details',
+            ],
+        ];
+    }
+
+    public function requestGrowattCommand($command, array $query = [], array $body = [], array $headers = [], array $options = [])
+    {
+        $map = $this->getGrowattCommandMap();
+        $key = strtolower(trim((string)$command));
+        if ($key === '' || empty($map[$key])) {
+            return [
+                'success' => false,
+                'error' => 'Unknown Growatt command: ' . $command,
+                'http_code' => 0,
+                'method' => 'GET',
+                'url' => '',
+            ];
+        }
+
+        $definition = $map[$key];
+        $method = $definition['method'] ?? 'GET';
+        $url = $definition['url'] ?? '';
+        $defaultQuery = isset($definition['query']) && is_array($definition['query']) ? $definition['query'] : [];
+        $defaultBody = isset($definition['body']) && is_array($definition['body']) ? $definition['body'] : [];
+        $defaultHeaders = isset($definition['headers']) && is_array($definition['headers']) ? $definition['headers'] : [];
+        $defaultOptions = isset($definition['options']) && is_array($definition['options']) ? $definition['options'] : [];
+
+        $query = array_merge($defaultQuery, $query);
+        $body = array_merge($defaultBody, $body);
+        $headers = array_merge($defaultHeaders, $headers);
+        $options = array_merge($defaultOptions, $options);
+
+        return $this->requestApi($method, $url, $query, $body, $headers, $options);
+    }
+
+    public function requestPagedGrowattCommand($command, array $query = [], array $body = [], array $headers = [], array $options = [])
+    {
+        $pageKey = isset($options['page_key']) ? (string)$options['page_key'] : 'page';
+        $perPageKey = isset($options['per_page_key']) ? (string)$options['per_page_key'] : 'perpage';
+        $resultKey = isset($options['result_key']) ? (string)$options['result_key'] : 'data';
+        $page = max(1, (int)($options['page'] ?? 1));
+        $perPage = max(1, (int)($options['per_page'] ?? 50));
+        $maxPages = max(1, (int)($options['max_pages'] ?? 50));
+        $items = [];
+        $pages = [];
+        $lastResult = null;
+
+        for ($index = 0; $index < $maxPages; $index++) {
+            $pagedQuery = $query;
+            $pagedQuery[$pageKey] = $page;
+            $pagedQuery[$perPageKey] = $perPage;
+
+            $result = $this->requestGrowattCommand($command, $pagedQuery, $body, $headers, $options);
+            if (empty($result['success'])) {
+                return $result + [
+                    'pages' => $pages,
+                    'items' => $items,
+                ];
+            }
+
+            $pages[] = $result;
+            $lastResult = $result;
+
+            $decoded = isset($result['decoded']) && is_array($result['decoded']) ? $result['decoded'] : [];
+            $pageData = $decoded[$resultKey] ?? $decoded['data'] ?? $decoded;
+            if (is_array($pageData)) {
+                if (array_keys($pageData) === range(0, count($pageData) - 1)) {
+                    $items = array_merge($items, $pageData);
+                } else {
+                    $items[] = $pageData;
+                }
+            }
+
+            $count = null;
+            if (isset($decoded['count']) && is_numeric($decoded['count'])) {
+                $count = (int)$decoded['count'];
+            } elseif (isset($decoded['total']) && is_numeric($decoded['total'])) {
+                $count = (int)$decoded['total'];
+            }
+
+            $currentSize = is_array($pageData) ? count($pageData) : 0;
+            if ($currentSize < $perPage) {
+                break;
+            }
+            if ($count !== null && count($items) >= $count) {
+                break;
+            }
+
+            $page++;
+        }
+
+        return [
+            'success' => true,
+            'command' => $command,
+            'pages' => $pages,
+            'items' => $items,
+            'last_result' => $lastResult,
+        ];
+    }
+
+    public function requestPlantData(array $query = [], array $headers = [], array $options = [])
+    {
+        return $this->requestGrowattCommand('plant_data', $query, [], $headers, $options);
+    }
+
+    public function requestPlantEnergy(array $query = [], array $headers = [], array $options = [])
+    {
+        return $this->requestGrowattCommand('plant_energy', $query, [], $headers, $options);
+    }
+
+    public function requestDeviceInverterData(array $query = [], array $headers = [], array $options = [])
+    {
+        return $this->requestGrowattCommand('device_inverter_data', $query, [], $headers, $options);
+    }
+
+    public function requestDeviceInverterDayEnergy(array $query = [], array $headers = [], array $options = [])
+    {
+        return $this->requestGrowattCommand('device_inverter_day_energy', $query, [], $headers, $options);
+    }
+
+    public function requestPlantPower(array $query = [], array $headers = [], array $options = [])
+    {
+        return $this->requestGrowattCommand('plant_power', $query, [], $headers, $options);
+    }
+
+    public function requestPlantDetails(array $query = [], array $headers = [], array $options = [])
+    {
+        return $this->requestGrowattCommand('plant_details', $query, [], $headers, $options);
+    }
+
+    public function requestDeviceInverterDetails(array $query = [], array $headers = [], array $options = [])
+    {
+        return $this->requestGrowattCommand('device_inverter_details', $query, [], $headers, $options);
+    }
+
+    protected function parseChartSeriesFromJs($content)
+    {
         if (!preg_match_all(
             '#Date\.UTC\((\d+),\s*(\d+),\s*(\d+)\),\s*([0-9.]+)#',
             $content,
@@ -81,43 +388,62 @@ class growattStats
             ];
         }
 
+        return $series;
+    }
+
+    protected function loadPayloadFromJs()
+    {
+        $dataFile = $this->config['dataFile'];
+        if (!file_exists($dataFile)) {
+            return [];
+        }
+
+        $content = (string)file_get_contents($dataFile);
+        if (preg_match('#growattStatsData\s*=\s*(\{.*?\})\s*;#s', $content, $match)) {
+            $payload = json_decode($match[1], true);
+            if (is_array($payload)) {
+                if (empty($payload['series']) || !is_array($payload['series'])) {
+                    $payload['series'] = [];
+                }
+                return $payload;
+            }
+        }
+
+        $series = $this->parseChartSeriesFromJs($content);
         if (empty($series)) {
             return [];
         }
 
+        $todayEnergy = 0.0;
+        $lastPoint = end($series);
+        if (is_array($lastPoint) && isset($lastPoint[1])) {
+            $todayEnergy = (float)$lastPoint[1];
+        }
+
+        $totalEnergy = 0.0;
+        foreach ($series as $point) {
+            if (is_array($point) && isset($point[1])) {
+                $totalEnergy += (float)$point[1];
+            }
+        }
+
         return [
             'updated_at' => gmdate('c'),
+            'today_energy' => $todayEnergy,
+            'total_energy' => $totalEnergy,
             'series' => $series,
         ];
     }
 
     protected function loadChartPayload()
     {
-        $dataFile = $this->config['dataFile'];
-        if (!file_exists($dataFile)) {
-            return $this->loadLegacyChartPayload();
-        }
-
-        $payload = json_decode((string)file_get_contents($dataFile), true);
-        if (!is_array($payload)) {
-            return $this->loadLegacyChartPayload();
+        $payload = $this->loadPayloadFromJs();
+        if (!is_array($payload) || empty($payload)) {
+            return [];
         }
 
         if (empty($payload['series']) || !is_array($payload['series'])) {
             $payload['series'] = [];
-        }
-
-        if (
-            empty($payload['series']) &&
-            empty($payload['api']) &&
-            !isset($payload['today_energy']) &&
-            !isset($payload['total_energy'])
-        ) {
-            $legacyPayload = $this->loadLegacyChartPayload();
-            if (!empty($legacyPayload)) {
-                $this->saveChartPayload($legacyPayload);
-                return $legacyPayload;
-            }
         }
 
         return $payload;
@@ -135,70 +461,74 @@ class growattStats
 
         $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         if ($json === false) {
-            $this->modx->log(modX::LOG_LEVEL_ERROR, '[growattStats] Could not encode chart payload to JSON');
+            $this->modx->log(modX::LOG_LEVEL_ERROR, '[growattStats] Could not encode chart payload to JS');
             return false;
         }
 
-        return file_put_contents($dataFile, $json . PHP_EOL, LOCK_EX) !== false;
+        $js = 'var growattStatsData = ' . $json . ';' . PHP_EOL;
+        $js .= 'if (typeof window !== "undefined") { window.growattStatsData = growattStatsData; window.growattStatsSeries = growattStatsData.series || []; }' . PHP_EOL;
+
+        return file_put_contents($dataFile, $js, LOCK_EX) !== false;
+    }
+
+    public function renderTemplateFile($path, array $placeholders = [])
+    {
+        $path = (string)$path;
+        if ($path === '' || !is_file($path)) {
+            return '';
+        }
+
+        $content = (string)file_get_contents($path);
+        if ($content === '') {
+            return '';
+        }
+
+        return $this->parseTemplatePlaceholders($content, $placeholders);
+    }
+
+    protected function parseTemplatePlaceholders($content, array $placeholders = [])
+    {
+        $replacements = [];
+        foreach ($placeholders as $key => $value) {
+            $replacements['[[+' . $key . ']]'] = is_scalar($value) || $value === null
+                ? (string)$value
+                : json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        }
+
+        return strtr((string)$content, $replacements);
     }
 
     public function fetchApiData()
     {
-        $plantId = trim((string)$this->getSetting('plant_id', ''));
-        $token = trim((string)$this->getSetting('token_id', ''));
-        $apiUrl = trim((string)$this->getSetting('api_url', 'https://openapi.growatt.com/v1/plant/data'));
-
-        if ($plantId === '' || $token === '') {
+        $result = $this->requestPlantData();
+        if (empty($result['success'])) {
             $this->modx->log(
                 modX::LOG_LEVEL_ERROR,
-                '[growattStats] System settings growattstats_plant_id or growattstats_token_id are missing'
+                '[growattStats] API request failed: ' . ($result['error'] ?? 'Unknown error')
             );
             return false;
         }
 
-        if ($apiUrl === '') {
-            $apiUrl = 'https://openapi.growatt.com/v1/plant/data';
+        $decoded = isset($result['decoded']) && is_array($result['decoded']) ? $result['decoded'] : null;
+        if ($decoded !== null) {
+            if (!empty($result['api_error'])) {
+                $this->modx->log(
+                    modX::LOG_LEVEL_ERROR,
+                    '[growattStats] API returned error: ' . $result['api_error'] . ' | raw: ' . ($result['raw'] ?? '')
+                );
+                return false;
+            }
+
+            if (array_key_exists('data', $decoded) && is_array($decoded['data'])) {
+                return $decoded['data'];
+            }
         }
 
-        $curl = curl_init();
-        curl_setopt_array($curl, [
-            CURLOPT_URL => rtrim($apiUrl, '?&') . '?plant_id=' . urlencode($plantId),
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 20,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_HTTPHEADER => [
-                'token: ' . $token,
-                'Accept: application/json',
-            ],
-        ]);
-
-        $response = curl_exec($curl);
-        $httpCode = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($curl);
-        curl_close($curl);
-
-        if (!$response || $httpCode !== 200) {
-            $this->modx->log(
-                modX::LOG_LEVEL_ERROR,
-                '[growattStats] API request failed, HTTP code: ' . $httpCode . ($curlError ? '; ' . $curlError : '')
-            );
-            return false;
-        }
-
-        $decoded = json_decode($response, true);
-        if (!is_array($decoded) || empty($decoded['data']) || !is_array($decoded['data'])) {
-            $this->modx->log(
-                modX::LOG_LEVEL_ERROR,
-                '[growattStats] API returned invalid payload: ' . $response
-            );
-            return false;
-        }
-
-        return $decoded['data'];
+        $this->modx->log(
+            modX::LOG_LEVEL_ERROR,
+            '[growattStats] API returned invalid payload: ' . ($result['raw'] ?? '')
+        );
+        return false;
     }
 
     public function updateChartData(array $apiData)
@@ -245,6 +575,17 @@ class growattStats
         }
 
         return $this->updateChartData($apiData);
+    }
+
+    public function refreshCacheMessage()
+    {
+        $result = $this->refreshCache();
+
+        if ($result) {
+            return '[growattStats] Cache updated successfully';
+        }
+
+        return '[growattStats] Cache update failed';
     }
 
     public function getChartPayload($refreshIfMissing = true)
@@ -303,23 +644,16 @@ class growattStats
 
     public function registerAssets()
     {
-        $this->modx->regClientCSS($this->config['cssUrl'] . 'bootstrap.css');
-        $this->modx->regClientCSS($this->config['cssUrl'] . 'styles.css');
-        $this->modx->regClientStartupScript(
-            '<script src="' . $this->config['jsUrl'] . 'jquery-1.11.1.min.js"></script>',
-            true
-        );
-        $this->modx->regClientStartupScript(
-            '<script src="' . $this->config['jsUrl'] . 'bootstrap.min.js"></script>',
-            true
-        );
-        $this->modx->regClientStartupScript(
-            '<script src="' . $this->config['jsUrl'] . 'highstock.js"></script>',
-            true
-        );
+        $this->modx->regClientStartupScript($this->getAssetTags(), true);
     }
 
-    public function registerChartScript(array $series = [])
+    public function getAssetTags()
+    {
+        return '<script src="' . $this->config['assetsUrl'] . 'data/chart-data.js"></script>'
+            . '<script src="' . $this->config['jsUrl'] . 'highstock.js"></script>';
+    }
+
+    public function getChartScript(array $series = [])
     {
         $seriesJson = json_encode(array_values($series), JSON_UNESCAPED_SLASHES);
         if ($seriesJson === false) {
@@ -334,6 +668,12 @@ class growattStats
         if (typeof Highcharts === "undefined") {
             setTimeout(initGrowattChart, 100);
             return;
+        }
+
+        if (typeof window !== "undefined" && window.growattStatsData && window.growattStatsData.series) {
+            seriesData = window.growattStatsData.series;
+        } else if (typeof window !== "undefined" && window.growattStatsSeries && window.growattStatsSeries.length) {
+            seriesData = window.growattStatsSeries;
         }
 
         Highcharts.stockChart("growattstats-container", {
@@ -363,8 +703,12 @@ class growattStats
     initGrowattChart();
 }());
 </script>';
+        return $script;
+    }
 
-        $this->modx->regClientScript($script, true);
+    public function registerChartScript(array $series = [])
+    {
+        $this->modx->regClientScript($this->getChartScript($series), true);
     }
 
     public function getStats()

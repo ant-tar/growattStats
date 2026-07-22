@@ -6,12 +6,12 @@ return [
         'value' => 'https://openapi.growatt.com/v1/plant/data',
         'area' => 'growattstats_main',
     ],
-    'plant_id' => [
+    'token' => [
         'xtype' => 'textfield',
         'value' => '',
         'area' => 'growattstats_main',
     ],
-    'token_id' => [
+    'plant_id' => [
         'xtype' => 'textfield',
         'value' => '',
         'area' => 'growattstats_main',

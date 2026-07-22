@@ -1,8 +1,8 @@
 <?php
 
 $values = [
+    'token' => '',
     'plant_id' => '',
-    'token_id' => '',
     'plant_name' => '',
     'price' => '1.20',
 ];
@@ -22,8 +22,8 @@ $escape = static function ($value) {
 
 return '
 <div class="form-group">
-    <label for="growattstats-token-id">API Token</label>
-    <input type="text" class="form-control" name="token_id" id="growattstats-token-id" value="' . $escape($values['token_id']) . '" required>
+    <label for="growattstats-token">API Token</label>
+    <input type="text" class="form-control" name="token" id="growattstats-token" value="' . $escape($values['token']) . '" required>
 </div>
 <div class="form-group">
     <label for="growattstats-plant-id">Plant ID</label>

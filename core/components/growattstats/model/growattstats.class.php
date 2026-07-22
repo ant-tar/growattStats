@@ -4,215 +4,375 @@ class growattStats
 {
     /** @var modX $modx */
     public $modx;
-
+    /** @var array $config */
+    public $config = [];
 
     /**
      * @param modX $modx
      * @param array $config
      */
-    function __construct(modX &$modx, array $config = [])
+    public function __construct(modX &$modx, array $config = [])
     {
         $this->modx =& $modx;
-        $corePath = MODX_CORE_PATH . 'components/growattstats/';
-        $assetsUrl = MODX_ASSETS_URL . 'components/growattstats/';
+
+        $corePath = $modx->getOption('growattstats_core_path', null, MODX_CORE_PATH . 'components/growattstats/');
+        $assetsUrl = $modx->getOption('growattstats_assets_url', null, MODX_ASSETS_URL . 'components/growattstats/');
+        $assetsPath = $modx->getOption('growattstats_assets_path', null, MODX_ASSETS_PATH . 'components/growattstats/');
 
         $this->config = array_merge([
             'corePath' => $corePath,
             'modelPath' => $corePath . 'model/',
-            'processorsPath' => $corePath . 'processors/',
-
-            'connectorUrl' => $assetsUrl . 'connector.php',
             'assetsUrl' => $assetsUrl,
+            'assetsPath' => $assetsPath,
             'cssUrl' => $assetsUrl . 'css/',
             'jsUrl' => $assetsUrl . 'js/',
+            'dataFile' => $assetsPath . 'data/chart-data.json',
         ], $config);
 
-        $this->modx->addPackage('growattstats', $this->config['modelPath']);
         $this->modx->lexicon->load('growattstats:default');
     }
-	public function getStats(){
-		$stats = 'ok	';
 
-		$this->modx->regClientCSS('/assets/components/growattstats/lumino/css/bootstrap.css');
-	///	$this->modx->regClientCSS('/assets/components/growattstats/lumino/css/datepicker3.css');
-		$this->modx->regClientCSS('/assets/components/growattstats/lumino/css/styles.css');
+    protected function getSetting($key, $default = '')
+    {
+        return $this->modx->getOption('growattstats_' . $key, null, $default);
+    }
 
-		$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"/assets/components/growattstats/lumino/js/jquery-1.11.1.min.js\"></script>", true);
-		$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"/assets/components/growattstats/lumino/js/bootstrap.min.js\"></script>", true);
-		//$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"/assets/components/growattstats/lumino/js/chart.min.js\"></script>", true);
-		//$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"/assets/components/growattstats/lumino/js/chart-data.js\"></script>", true);
-///		$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"/assets/components/growattstats/lumino/js/easypiechart.js\"></script>", true);
-	
-///		$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"/assets/components/growattstats/lumino/js/bootstrap-datepicker.js\"></script>", true);
-		
-		$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"//code.highcharts.com/stock/highstock.js\"></script>", true);
-	//	$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"//code.highcharts.com/stock/modules/exporting.js\"></script>", true);
-		$this->modx->regClientStartupScript("<script type=\"text/javascript\" src=\"/assets/components/growattstats/data/chart-data.js\"></script>", true);
-		
-	//	require_once $this->config['modelPath'].'/growattstats/minishop2.class.php';
-	//	$stats_class = $this->modx->getOption('growattstats_namespace', null, 'minishop2_shop');
-	///	if ($stats_class != 'minishop2_shop') {$this->loadCustomClasses($stats_class);}
+    protected function getTodayTimestamp()
+    {
+        return (int)gmmktime(
+            0,
+            0,
+            0,
+            (int)gmdate('n'),
+            (int)gmdate('j'),
+            (int)gmdate('Y')
+        ) * 1000;
+    }
 
+    protected function loadLegacyChartPayload()
+    {
+        $legacyFile = preg_replace('#\.json$#', '.js', $this->config['dataFile']);
+        if (!$legacyFile || !file_exists($legacyFile)) {
+            return [];
+        }
 
-	//	$this->shop = new $stats_class($this, $this->config);
-	///	if (!($this->shop instanceof statsInterface) || $this->shop->initialize($ctx) !== true) {
-	//		$this->modx->log(modX::LOG_LEVEL_ERROR, 'Could not initialize shop class: "'.$stats_class.'"');
-	///		return false;
-	//	}
+        $content = (string)file_get_contents($legacyFile);
+        if (!preg_match_all(
+            '#Date\.UTC\((\d+),\s*(\d+),\s*(\d+)\),\s*([0-9.]+)#',
+            $content,
+            $matches,
+            PREG_SET_ORDER
+        )) {
+            return [];
+        }
 
-	//	$stats = $this->shop->getStats();
-/*
-		foreach($stats['total_counts'] as $status_key => $status){
-			foreach($stats['stats_month'] as $month_key => $month){
-		        $labels[$month_key] = '"'.$month_key.'"';
-		        if(count($month[$status_key]) > 0){
-		            $dataCount[$status_key][$month_key] = $month[$status_key]['count_orders'];
-		        }else{
-		            $dataCount[$status_key][$month_key] = 0;
-		        }
+        $series = [];
+        foreach ($matches as $match) {
+            $series[] = [
+                gmmktime(
+                    0,
+                    0,
+                    0,
+                    (int)$match[2] + 1,
+                    (int)$match[3],
+                    (int)$match[1]
+                ) * 1000,
+                (float)$match[4],
+            ];
+        }
 
-		        $dataCost[$status_key][$month_key] = !empty($month[$status_key]['total_cost']) ? $month[$status_key]['total_cost'] : 0;
-		    }
-		    $datasetsCount[] = '{
-				label: "'.$status['name'].'",
-				fillColor : "rgba(220,220,220,0.2)",
-				strokeColor : "#'.$status['color'].'",
-				pointColor : "#'.$status['color'].'",
-				pointStrokeColor : "#'.$status['color'].'",
-				pointHighlightFill : "#'.$status['color'].'",
-				pointHighlightStroke : "#'.$status['color'].'",
-				data : [0,'.implode(",", $dataCount[$status_key]).'],
-				options:{
-				    scales: {
-				        y: {
-				            title: "TITLE"
-				            
-				        }
-				    }
-				}    
-			}';
-			$datasetsCost[] = '{
-				label: "'.$status['name'].'",
-				fillColor : "rgba(220,220,220,0.2)",
-				strokeColor : "#'.$status['color'].'",
-				pointColor : "#'.$status['color'].'",
-				pointStrokeColor : "#'.$status['color'].'",
-				pointHighlightFill : "#'.$status['color'].'",
-				pointHighlightStroke : "#'.$status['color'].'",
-				data : [0,'.implode(",", $dataCost[$status_key]).']
-			}';
-		}
-		
-*/		
-		$datasetsCount = implode(",", $datasetsCount);
-		$datasetsCost = implode(",", $datasetsCost);
-		$labels = '0,'.implode(",", $labels);
+        if (empty($series)) {
+            return [];
+        }
 
-		$this->modx->regClientStartupScript('<script type="text/javascript">
-			var lineChartCount = {
-				labels: ['.$labels.'],
-				datasets : [
-					'.$datasetsCount.'
-				]
-				
-			}
-			var lineChartCost = {
-				labels: ['.$labels.'],
-				datasets : [
-					'.$datasetsCost.'
-				]
-			
-			}
+        return [
+            'updated_at' => gmdate('c'),
+            'series' => $series,
+        ];
+    }
 
-			window.onload = function(){
-				//var chart1 = document.getElementById("line-chart").getContext("2d");
-				//window.myLine = new Chart(chart1).Line(lineChartCount, {
-			//		responsive: true
-			//	});
-	
+    protected function loadChartPayload()
+    {
+        $dataFile = $this->config['dataFile'];
+        if (!file_exists($dataFile)) {
+            return $this->loadLegacyChartPayload();
+        }
 
-				var dashboard = $(".js-dashboard-stats");
-				var d_height = dashboard.height();
-				var d_parent = dashboard.parents(".dashboard-block");
-				d_parent.addClass("dashboard-stats");
-				d_parent.find("h3").hide();
-				d_parent.find(".body").css("max-height", d_height+50);
-				d_parent.height(d_height);
-				
-				
-				Highcharts.stockChart("container", {
-                  chart: {
-                    zoomType: "x"
-                  },
-                  xAxis: {
-                    minRange: 3600
-                  },
-                
-                  rangeSelector: {
-                    selected: 1,
-                    labelStyle: {
-                         display: "none"
-                      }
-                  },
-                  
-                  plotOptions: {
-                        series: {
-                            fillColor: {
-                                linearGradient: [0, 0, 0, 300],
-                                stops: [
-                                    [0, Highcharts.getOptions().colors[0]],
-                                    [
-                                        1,
-                                        Highcharts.color(Highcharts.getOptions().colors[0])
-                                            .setOpacity(0).get("rgba")
-                                    ]
-                                ]
-                            }
-                        }
-                    },
-                
-                  series: [{
-                    name: "Generation",
-                    data: usdeur,
-                    color: "#2e5a90"
-                  }]
-                });
+        $payload = json_decode((string)file_get_contents($dataFile), true);
+        if (!is_array($payload)) {
+            return $this->loadLegacyChartPayload();
+        }
 
-				
+        if (empty($payload['series']) || !is_array($payload['series'])) {
+            $payload['series'] = [];
+        }
 
+        if (
+            empty($payload['series']) &&
+            empty($payload['api']) &&
+            !isset($payload['today_energy']) &&
+            !isset($payload['total_energy'])
+        ) {
+            $legacyPayload = $this->loadLegacyChartPayload();
+            if (!empty($legacyPayload)) {
+                $this->saveChartPayload($legacyPayload);
+                return $legacyPayload;
+            }
+        }
 
-			};
-		</script>', true);
+        return $payload;
+    }
 
+    protected function saveChartPayload(array $payload)
+    {
+        $dataFile = $this->config['dataFile'];
+        $dir = dirname($dataFile);
 
-		return $stats;
-	}
+        if (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir)) {
+            $this->modx->log(modX::LOG_LEVEL_ERROR, '[growattStats] Could not create data directory: ' . $dir);
+            return false;
+        }
 
-	public function loadCustomClasses($dir) {
-		$files = scandir($this->config['customPath'] . $dir);
-		foreach ($files as $file) {
-			if (preg_match('/.*?\.class\.php$/i', $file)) {
-				include_once($this->config['customPath'] . $dir . '/' . $file);
-			}
-		}
-	}
+        $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ($json === false) {
+            $this->modx->log(modX::LOG_LEVEL_ERROR, '[growattStats] Could not encode chart payload to JSON');
+            return false;
+        }
 
-	function month($month){
-		$months = array(
-			'1' => 'Январь',
-			'2' => 'Февраль',
-			'3' => 'Март',
-			'4' => 'Апрель',
-			'5' => 'Май',
-			'6' => 'Июнь',
-			'7' => 'Июль',
-			'8' => 'Август',
-			'9' => 'Сентябрь',
-			'10' => 'Октябрь',
-			'11' => 'Ноябрь',
-			'12' => 'Декабрь',
-		);
-		return $months[$month];
-	}
+        return file_put_contents($dataFile, $json . PHP_EOL, LOCK_EX) !== false;
+    }
 
+    public function fetchApiData()
+    {
+        $plantId = trim((string)$this->getSetting('plant_id', ''));
+        $token = trim((string)$this->getSetting('token_id', ''));
+        $apiUrl = trim((string)$this->getSetting('api_url', 'https://openapi.growatt.com/v1/plant/data'));
+
+        if ($plantId === '' || $token === '') {
+            $this->modx->log(
+                modX::LOG_LEVEL_ERROR,
+                '[growattStats] System settings growattstats_plant_id or growattstats_token_id are missing'
+            );
+            return false;
+        }
+
+        if ($apiUrl === '') {
+            $apiUrl = 'https://openapi.growatt.com/v1/plant/data';
+        }
+
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => rtrim($apiUrl, '?&') . '?plant_id=' . urlencode($plantId),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 20,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_HTTPHEADER => [
+                'token: ' . $token,
+                'Accept: application/json',
+            ],
+        ]);
+
+        $response = curl_exec($curl);
+        $httpCode = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($curl);
+        curl_close($curl);
+
+        if (!$response || $httpCode !== 200) {
+            $this->modx->log(
+                modX::LOG_LEVEL_ERROR,
+                '[growattStats] API request failed, HTTP code: ' . $httpCode . ($curlError ? '; ' . $curlError : '')
+            );
+            return false;
+        }
+
+        $decoded = json_decode($response, true);
+        if (!is_array($decoded) || empty($decoded['data']) || !is_array($decoded['data'])) {
+            $this->modx->log(
+                modX::LOG_LEVEL_ERROR,
+                '[growattStats] API returned invalid payload: ' . $response
+            );
+            return false;
+        }
+
+        return $decoded['data'];
+    }
+
+    public function updateChartData(array $apiData)
+    {
+        $payload = $this->loadChartPayload();
+        if (!is_array($payload)) {
+            $payload = [];
+        }
+
+        $series = isset($payload['series']) && is_array($payload['series']) ? $payload['series'] : [];
+        $todayEnergy = isset($apiData['today_energy']) ? (float)$apiData['today_energy'] : 0.0;
+        $todayPoint = [$this->getTodayTimestamp(), $todayEnergy];
+
+        $found = false;
+        foreach ($series as $index => $point) {
+            if (!is_array($point) || count($point) < 2) {
+                continue;
+            }
+            if ((int)$point[0] === $todayPoint[0]) {
+                $series[$index] = $todayPoint;
+                $found = true;
+                break;
+            }
+        }
+
+        if (!$found) {
+            $series[] = $todayPoint;
+        }
+
+        $payload['updated_at'] = gmdate('c');
+        $payload['today_energy'] = $todayEnergy;
+        $payload['total_energy'] = isset($apiData['total_energy']) ? (float)$apiData['total_energy'] : 0.0;
+        $payload['api'] = $apiData;
+        $payload['series'] = array_values($series);
+
+        return $this->saveChartPayload($payload);
+    }
+
+    public function refreshCache()
+    {
+        $apiData = $this->fetchApiData();
+        if (!$apiData) {
+            return false;
+        }
+
+        return $this->updateChartData($apiData);
+    }
+
+    public function getChartPayload($refreshIfMissing = true)
+    {
+        $payload = $this->loadChartPayload();
+
+        if (empty($payload) && $refreshIfMissing) {
+            $apiData = $this->fetchApiData();
+            if ($apiData) {
+                $this->updateChartData($apiData);
+                $payload = $this->loadChartPayload();
+            }
+        }
+
+        return is_array($payload) ? $payload : [];
+    }
+
+    public function getDisplayData(array $options = [])
+    {
+        $price = isset($options['price'])
+            ? (float)$options['price']
+            : (float)$this->getSetting('price', 1.20);
+        $plantName = trim((string)($options['plantName'] ?? $options['plant_name'] ?? ''));
+
+        $payload = $this->getChartPayload(true);
+        if (empty($payload['api']) || !isset($payload['today_energy']) || !isset($payload['total_energy'])) {
+            $this->refreshCache();
+            $payload = $this->getChartPayload(false);
+        }
+
+        $apiData = isset($payload['api']) && is_array($payload['api']) ? $payload['api'] : [];
+        $series = isset($payload['series']) && is_array($payload['series']) ? array_values($payload['series']) : [];
+        $fallbackEnergy = 0.0;
+        if (!empty($series)) {
+            $lastPoint = end($series);
+            if (is_array($lastPoint) && isset($lastPoint[1])) {
+                $fallbackEnergy = (float)$lastPoint[1];
+            }
+        }
+
+        $data = array_merge($apiData, [
+            'today_energy' => isset($payload['today_energy']) ? (float)$payload['today_energy'] : $fallbackEnergy,
+            'total_energy' => isset($payload['total_energy']) ? (float)$payload['total_energy'] : $fallbackEnergy,
+            'today_revenue' => 0.0,
+            'total_revenue' => 0.0,
+            'plant_name' => $plantName !== '' ? $plantName : (string)$this->getSetting('plant_name', ''),
+            'series' => $series,
+            'updated_at' => $payload['updated_at'] ?? null,
+        ]);
+
+        $data['today_revenue'] = round($price * (float)$data['today_energy'], 2);
+        $data['total_revenue'] = round($price * (float)$data['total_energy'], 2);
+
+        return $data;
+    }
+
+    public function registerAssets()
+    {
+        $this->modx->regClientCSS($this->config['cssUrl'] . 'bootstrap.css');
+        $this->modx->regClientCSS($this->config['cssUrl'] . 'styles.css');
+        $this->modx->regClientStartupScript(
+            '<script src="' . $this->config['jsUrl'] . 'jquery-1.11.1.min.js"></script>',
+            true
+        );
+        $this->modx->regClientStartupScript(
+            '<script src="' . $this->config['jsUrl'] . 'bootstrap.min.js"></script>',
+            true
+        );
+        $this->modx->regClientStartupScript(
+            '<script src="' . $this->config['jsUrl'] . 'highstock.js"></script>',
+            true
+        );
+    }
+
+    public function registerChartScript(array $series = [])
+    {
+        $seriesJson = json_encode(array_values($series), JSON_UNESCAPED_SLASHES);
+        if ($seriesJson === false) {
+            $seriesJson = '[]';
+        }
+
+        $script = '<script>
+(function () {
+    var seriesData = ' . $seriesJson . ';
+
+    function initGrowattChart() {
+        if (typeof Highcharts === "undefined") {
+            setTimeout(initGrowattChart, 100);
+            return;
+        }
+
+        Highcharts.stockChart("growattstats-container", {
+            chart: { zoomType: "x" },
+            xAxis: { minRange: 3600 * 1000 },
+            rangeSelector: {
+                selected: 5,
+                inputEnabled: false,
+                buttons: [
+                    { type: "month", count: 1, text: "1m" },
+                    { type: "month", count: 3, text: "3m" },
+                    { type: "month", count: 6, text: "6m" },
+                    { type: "ytd", text: "YTD" },
+                    { type: "year", count: 1, text: "1y" },
+                    { type: "all", text: "All" }
+                ]
+            },
+            title: { text: null },
+            series: [{
+                name: "Generation (kWh)",
+                data: seriesData,
+                color: "#2e5a90"
+            }]
+        });
+    }
+
+    initGrowattChart();
+}());
+</script>';
+
+        $this->modx->regClientScript($script, true);
+    }
+
+    public function getStats()
+    {
+        $data = $this->getDisplayData();
+        $this->registerAssets();
+        $this->registerChartScript($data['series'] ?? []);
+
+        return $data;
+    }
 }

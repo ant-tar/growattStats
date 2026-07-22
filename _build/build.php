@@ -733,6 +733,12 @@ class growattStatsPackage
             'changelog' => file_get_contents($this->config['core'] . 'docs/changelog.txt'),
             'license' => file_get_contents($this->config['core'] . 'docs/license.txt'),
             'readme' => file_get_contents($this->config['core'] . 'docs/readme.txt'),
+            'setup-options' => [
+                'source' => $this->config['build'] . 'setup.options.php',
+            ],
+            'requires' => [
+                'cronmanager' => '*',
+            ],
         ]);
         $this->modx->log(modX::LOG_LEVEL_INFO, 'Added package attributes and setup options.');
 

@@ -5,8 +5,20 @@ Getting and displaying energy generation statistics via [Growatt](https://en.gro
 ## Installation
 Install the extra via MODX package manager
 
+## Requirements
+The package depends on `CronManager` (`cronmanager` namespace).
+
 ## Get Token ID and Plant ID
 Signup for an account on [Growatt](https://en.growatt.com/) and ask provider for more details.
 
 ## System settings
-Before using this extra `growattstats_token_id` API Token (can be found in [Growatt Settings tab](https://server.growatt.com/index)) and `growattstats_plant_id` Plant ID (the easiest way now is to ask provider directly :)) system settings must be specified.
+Before using this extra:
+- `growattstats_api_url` is prefilled with the Growatt endpoint
+- `growattstats_token_id` stores your API token
+- `growattstats_plant_id` is requested during installation
+
+Optional settings:
+- `growattstats_plant_name`
+- `growattstats_price`
+
+The chart history is stored locally in `assets/components/growattstats/data/chart-data.json` and refreshed by the cron snippet.

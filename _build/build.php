@@ -72,6 +72,7 @@ foreach (['css', 'js', 'images', 'connector.php'] as $path) {
     ]);
 }
 $vehicle->resolve('php', ['source' => __DIR__ . '/resolvers/setupoptions.resolver.php']);
+$vehicle->resolve('php', ['source' => __DIR__ . '/resolvers/cronjob.resolver.php']);
 $builder->putVehicle($vehicle);
 
 $settings = require __DIR__ . '/elements/settings.php';
@@ -102,7 +103,7 @@ $builder->setPackageAttributes([
     'license' => file_get_contents($core . 'docs/license.txt'),
     'readme' => file_get_contents($core . 'docs/readme.txt'),
     'setup-options' => ['source' => __DIR__ . '/setup.options.php'],
-    'requires' => ['modx' => '>=2.8.0 <3.0.0', 'php' => '>=7.4', 'cronmanager' => '*'],
+    'requires' => ['modx' => '>=2.8.0 <3.0.0', 'php' => '>=7.4', 'cronmanager' => '>=1.2.2'],
 ]);
 if (!$builder->pack()) {
     throw new RuntimeException('Transport package creation failed.');

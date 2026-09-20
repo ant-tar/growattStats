@@ -10,6 +10,9 @@ $growattstats = $modx->getService(
 );
 if (!$growattstats) {
     $modx->log(modX::LOG_LEVEL_ERROR, '[growattStats] Could not load growattStats class');
+    if (!empty($scriptProperties['CronManager'])) {
+        return json_encode(['error' => true, 'message' => '[growattStats] Could not load service']);
+    }
     return false;
 }
 
@@ -19,4 +22,11 @@ $modx->log(
     '[growattStats] CronDataUpdate: ' . ($result ? 'success' : 'failed')
 );
 
+if (!empty($scriptProperties['CronManager'])) {
+    return json_encode([
+        'error' => !$result,
+        'message' => $result
+            ? '[growattStats] Readings updated' : '[growattStats] Refresh failed; previous data retained',
+    ]);
+}
 return $result;

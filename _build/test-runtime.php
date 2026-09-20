@@ -16,6 +16,10 @@ mkdir($directory, 0775, true);
 $file = $directory . '/chart-data.json';
 $service = new GrowattStats\Service($modx, ['dataFile' => $file]);
 try {
+    $example = dirname(__DIR__) . '/core/components/growattstats/docs/examples/chart-data.example.js';
+    copy($example, $directory . '/chart-data.js');
+    $examplePayload = $service->getChartPayload(false);
+    $check(count($examplePayload['series']) > 1000, 'read retained Date.UTC history example');
     $legacy = ['series' => [[946684800000, 12.5]], 'today_energy' => 12.5, 'total_energy' => 99];
     file_put_contents($directory . '/chart-data.js', 'var growattStatsData = ' . json_encode($legacy) . ';');
     file_put_contents($file, json_encode(['series' => [], 'today_energy' => 0, 'total_energy' => 0]));
@@ -39,6 +43,22 @@ try {
     require dirname(__DIR__) . '/core/components/growattstats/model/growattstats.class.php';
     $check(is_a($service, 'growattStats'), 'MODX 2 class alias');
     $check(empty($service->requestGrowattCommand('unknown')['success']), 'reject unknown API command');
+    $scriptProperties = ['CronManager' => '1'];
+    $fakeService = new class {
+        public $result = true;
+        public function refreshCache()
+        {
+            return $this->result;
+        }
+    };
+    $modx->services['growattstats'] = $fakeService;
+    $snippetPath = dirname(__DIR__) . '/core/components/growattstats/elements/snippets/growattcrondataupdate.php';
+    $response = json_decode(include $snippetPath, true);
+    $check($response['error'] === false && is_string($response['message']), 'CronManager success JSON');
+    $fakeService->result = false;
+    $response = json_decode(include $snippetPath, true);
+    $check($response['error'] === true, 'CronManager failure JSON');
+    unset($modx->services['growattstats']);
     if (in_array('--live', $argv, true)) {
         $check(is_array($service->fetchApiData()), 'live Growatt plant data request');
     }

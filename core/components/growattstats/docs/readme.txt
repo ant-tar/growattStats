@@ -4,8 +4,8 @@ Growatt solar generation statistics, a frontend history chart, and a MODX Manage
 
 ## Status and requirements
 
-Version **1.0.1-beta3** targets MODX Revolution **2.8.x**, PHP **7.4+** with cURL and JSON,
-and CronManager. Tested locally on MODX **2.8.8 / PHP 8.1.34**. MODX 3 is a separate future stage.
+Version **1.0.1-beta4** targets MODX Revolution **2.8.x**, PHP **7.4+** with cURL and JSON,
+and CronManager 1.2.2 or later (tested with 1.5.1). Tested locally on MODX **2.8.8 / PHP 8.1.34**. MODX 3 is a separate future stage.
 
 This is a validation build, not yet cleared for submission to MODX Extras.
 The bundled Highstock library has separate licensing: redistribution rights must be confirmed
@@ -14,11 +14,12 @@ or the chart implementation replaced before public release. See [third-party not
 ## Installation
 
 1. Install CronManager.
-2. Upload `growattstats-1.0.1-beta3.transport.zip` through Extras > Installer.
+2. Upload `growattstats-1.0.1-beta4.transport.zip` through Extras > Installer.
 3. The installer requests **growattstats_token** (Growatt API token) and
    **growattstats_plant_id** (plant identifier). New installations require both.
 4. Add `[[!growattShowChart]]` to a resource, or use the `growattStats` alias.
-5. Schedule `growattCronDataUpdate` in CronManager to refresh the readings periodically.
+5. The package creates an active `growattCronDataUpdate` job every 15 minutes.
+   Configure the external scheduler described below so the job actually runs.
 6. Add the growattStats widget to the desired Manager dashboard.
 
 Obtain a token and Plant ID from your Growatt account/provider. Tokens are stored as system
@@ -39,7 +40,8 @@ is accepted and migrated to `growattstats_token`. Other settings and historical 
 
 `growattShowChart` accepts `tpl` (default `growattShowChart`), `toPlaceholder`,
 `plantName`, and `price`. `growattStats` is its compatibility alias.
-`growattCronDataUpdate` refreshes readings and returns success/failure.
+`growattCronDataUpdate` refreshes readings and returns success/failure when called directly.
+When CronManager calls it, it returns the required JSON error/message pair for job logging.
 The Manager uses the separate `growattShowWidget` chunk. Copy bundled chunks to customize them;
 package upgrades replace bundled chunks. The default markup displays energy in kWh.
 
@@ -51,13 +53,53 @@ An existing `growattstats_api_url` setting is still honored for plant-data reque
 
 History is stored in `assets/components/growattstats/data/chart-data.json` and is public chart data.
 Both older Date.UTC JavaScript histories and `growattStatsData` JavaScript payloads can be read
-and migrated. The transport archive contains no history or credentials. Keep backups of your history
+and migrated. The transport archive contains no live history or credentials.
+The original history file is retained as `core/components/growattstats/docs/examples/chart-data.example.js`;
+it is an explicit example and never replaces or initializes live history automatically. Keep backups of your history
 before upgrades or uninstalling. A failed request leaves the previous readings available.
 
 Fresh readings are obtained by the cron snippet; viewing a page is not a periodic refresh mechanism.
 API failures are logged with a `[growattStats]` prefix without raw response bodies or tokens.
 A local site's timezone and plant timezone may differ: daily points currently use UTC dates.
 Only one chart per page is supported (`growattstats-container`).
+
+## Automatic refresh
+
+There are two layers: the package-owned **CronManager job** (15-minute interval) and
+an **external scheduler** that invokes CronManager. Installing a MODX Extra cannot configure
+the hosting account's crontab automatically. CronManager is declared as a required dependency;
+its installation must be completed before growattStats is installed.
+
+On Linux, add this line to the hosting scheduler/crontab, using your PHP and site paths:
+
+```cron
+* * * * * /usr/bin/php /path/to/modx/assets/components/cronmanager/cron.php
+```
+
+On Windows/Laragon, use Task Scheduler with a one-minute trigger. For this development site:
+
+```powershell
+& .\_build\register-local-cron.ps1 `
+    -ModxPath 'D:\laragon\www\MODX-2.8.6' `
+    -PhpPath 'D:\laragon\bin\php\php-8.1.34-nts-Win32-vs16-x64\php-win.exe'
+```
+
+This creates a task for the currently logged-in Windows user. Laragon/MySQL must be running;
+it does not run while that user is logged out or while the computer is off. `php-win.exe`
+keeps background runs from opening a console window. The script refuses to overwrite an
+existing task with a different command. The hosting version of the Extra does not register Windows tasks.
+
+The package reuses a job already pointing to `growattCronDataUpdate`; it does not duplicate it
+or reset the administrator's interval or active state on upgrade. Clean uninstall removes the
+job created by the package. Keep its `growattstats_managed_job` property to retain automatic cleanup.
+Jobs created manually by an administrator are left alone. CronManager logs each success/failure.
+
+To check the chain: inspect the job's Last run / Next run columns and log, then the JSON file's
+`updated_at`. A successful request can have the same readings as the previous request, especially
+at night. The API used here reports current plant values; cron only accumulates readings from
+successful runs and does not reconstruct missed historical dates.
+
+Reference: [CronManager usage](https://jako.github.io/CronManager/usage/).
 
 ## Development
 

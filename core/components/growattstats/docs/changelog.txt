@@ -1,5 +1,12 @@
 Changelog for growattStats
 
+1.0.1-beta4
+==============
+- Retain original history as a documentation example, separate from runtime history.
+- Create an active 15-minute CronManager refresh job; preserve existing schedules on upgrade.
+- Remove package-created jobs on clean uninstall and return structured CronManager log results.
+- Document and provide local Windows external scheduler setup.
+
 1.0.1-beta3
 ==============
 - Target MODX 2.8.x; request growattstats_token and growattstats_plant_id at installation.

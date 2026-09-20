@@ -31,3 +31,18 @@ Limits / publication gate:
 Local backup and browser screenshots are under ignored `_build/local/`; they are not release assets.
 Reproduce source checks with `_build/test-runtime.php`; run `_build/test-package.php` only against
 an explicitly designated disposable database (see README).
+
+## Beta4: scheduled refresh and retained history example
+
+- Original Date.UTC history is retained under `core/components/growattstats/docs/examples/`.
+  It is packaged as documentation and never overwrites the live data directory.
+- Clean install creates an active CronManager job with a 15-minute interval.
+- Upgrade preserves edited interval/disabled state and does not duplicate the job.
+- Clean uninstall removes the job owned by this package, including when custom properties are added.
+- CronManager receives explicit JSON success/error results; both outcomes tested.
+- Windows task `growattStats-Laragon-CronManager` invokes the selected site's CronManager every minute.
+  It uses PHP without a console window and an interactive user logon; Laragon/MySQL must be running.
+- Actual task execution on 2026-09-20 refreshed the API data at 16:12:01 UTC;
+  the CronManager job log reports `[growattStats] Readings updated` with error=false.
+- Direct CLI package installations must refresh the MODX cache afterward, as the Package Manager
+  processor does. This avoids executing an older compiled version of the cron snippet.

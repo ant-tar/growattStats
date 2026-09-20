@@ -18,6 +18,8 @@ $check = function ($ok, $label) {
     }
     echo 'PASS: ' . $label . PHP_EOL;
 };
+$modx->addPackage('cronmanager', MODX_CORE_PATH . 'components/cronmanager/model/');
+$modx->removeCollection('modCronjob', ['properties' => '{"growattstats_managed_job":true}']);
 $modx->removeCollection('modSystemSetting', ['namespace' => 'growattstats']);
 $modx->removeCollection('modSnippet', ['name:IN' => ['growattStats','growattShowChart','growattCronDataUpdate']]);
 $modx->removeCollection('modChunk', ['name:IN' => ['growattShowChart','growattShowWidget']]);
@@ -29,7 +31,7 @@ copy(__DIR__ . '/dist/' . $signature . '.transport.zip', MODX_CORE_PATH . 'packa
 $p = $modx->newObject('transport.modTransportPackage');
 $p->fromArray(['signature' => $signature,'source' => $signature . '.transport.zip','state' => 1,'workspace' => 1,
     'provider' => 0,'package_name' => 'growattstats','version_major' => 1,'version_minor' => 0,'version_patch' => 1,
-    'release' => 'beta','release_index' => 3], '', true, true);
+    'release' => 'beta','release_index' => 4], '', true, true);
 $check($p->save(), 'register transport package');
 $check(!$p->install(), 'reject clean installation without credentials');
 $check(!$modx->getObject('modSnippet', ['name' => 'growattShowChart']), 'failed validation creates no snippet');
@@ -40,12 +42,27 @@ $check(
 $token = $modx->getObject('modSystemSetting', ['key' => 'growattstats_token']);
 $check($token && $token->get('value') === 'qa-token', 'save installer token');
 $check($token->get('xtype') === 'text-password', 'mask system-setting token field');
+$cronSnippet = $modx->getObject('modSnippet', ['name' => 'growattCronDataUpdate']);
+$job = $modx->getObject('modCronjob', ['snippet' => $cronSnippet->get('id')]);
+$check($job && (int) $job->get('minutes') === 15 && $job->get('active'), 'create active 15-minute job');
+$jobId = $job->get('id');
+$job->set('properties', '{"growattstats_managed_job":true,"customProperty":"preserved"}');
+$job->save();
+// Reload transport as Package Manager would between separate install/uninstall requests.
+$p->package = null;
 $check($p->uninstall(), 'uninstall clean installation');
+$check(!$modx->getObject('modCronjob', $jobId), 'remove owned job on clean uninstall');
 $check(!$modx->getObject('modSnippet', ['name' => 'growattShowChart']), 'remove clean-install snippets');
 $check(
     $p->install(['growattstats_token' => 'qa-token','growattstats_plant_id' => '12345']),
     'install again for upgrade checks'
 );
+$cronSnippet = $modx->getObject('modSnippet', ['name' => 'growattCronDataUpdate']);
+$job = $modx->getObject('modCronjob', ['snippet' => $cronSnippet->get('id')]);
+$jobId = $job->get('id');
+$job->set('minutes', 30);
+$job->set('active', false);
+$job->save();
 $setting = $modx->getObject('modSystemSetting', ['key' => 'growattstats_plant_name']);
 $setting->set('value', 'QA plant');
 $setting->save();
@@ -66,6 +83,9 @@ $check(
     $modx->getObject('modSystemSetting', ['key' => 'growattstats_plant_name'])->get('value') === 'QA plant',
     'preserve optional setting'
 );
+$job = $modx->getObject('modCronjob', $jobId);
+$check($job && (int) $job->get('minutes') === 30 && !$job->get('active'), 'preserve edited cron schedule');
+$check($modx->getCount('modCronjob', ['snippet' => $cronSnippet->get('id')]) === 1, 'no duplicate cron job');
 $check(hash_file('sha256', $dataDir . 'chart-data.json') === $hash, 'preserve chart history');
 $modx->setOption('growattstats_plant_name', 'QA plant');
 $out = $modx->runSnippet('growattShowChart');
@@ -107,6 +127,7 @@ $legacy->save();
 $check($p->install(), 'upgrade using legacy token setting');
 $token = $modx->getObject('modSystemSetting', ['key' => 'growattstats_token']);
 $check($token->get('value') === 'legacy-token', 'migrate legacy token value');
+$p->package = null;
 $check($p->uninstall(), 'uninstall transport package');
 
 echo "Transport lifecycle tests completed.\n";

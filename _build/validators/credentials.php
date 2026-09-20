@@ -8,6 +8,11 @@ if (!in_array($action, [xPDOTransport::ACTION_INSTALL, xPDOTransport::ACTION_UPG
     return true;
 }
 $modx = $transport->xpdo;
+$cronPath = $modx->getOption('cronmanager.core_path', null, MODX_CORE_PATH . 'components/cronmanager/');
+if (!is_file($cronPath . 'model/cronmanager/modcronjob.class.php')) {
+    $modx->log(modX::LOG_LEVEL_ERROR, '[growattStats] CronManager must be installed first.');
+    return false;
+}
 $values = [];
 foreach (['plant_id', 'token'] as $name) {
     $key = 'growattstats_' . $name;

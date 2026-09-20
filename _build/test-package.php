@@ -29,7 +29,7 @@ copy(__DIR__ . '/dist/' . $signature . '.transport.zip', MODX_CORE_PATH . 'packa
 $p = $modx->newObject('transport.modTransportPackage');
 $p->fromArray(['signature' => $signature,'source' => $signature . '.transport.zip','state' => 1,'workspace' => 1,
     'provider' => 0,'package_name' => 'growattstats','version_major' => 1,'version_minor' => 0,'version_patch' => 1,
-    'release' => 'beta','release_index' => 2], '', true, true);
+    'release' => 'beta','release_index' => 3], '', true, true);
 $check($p->save(), 'register transport package');
 $check(!$p->install(), 'reject clean installation without credentials');
 $check(!$modx->getObject('modSnippet', ['name' => 'growattShowChart']), 'failed validation creates no snippet');

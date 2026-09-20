@@ -6,3 +6,5 @@ config.core.php
 /assets/components/growattstats/data/*.json
 /assets/components/growattstats/data/*.js
 /2026-*.png
+
+/chart-data.js

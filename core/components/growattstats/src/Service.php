@@ -506,6 +506,33 @@ class Service
     /**
      * Get data from Growatt API.
      */
+    public function renderTemplateFile($path, array $placeholders = [])
+    {
+        $path = (string)$path;
+        if ($path === '' || !is_file($path)) {
+            return '';
+        }
+
+        $content = (string)file_get_contents($path);
+        if ($content === '') {
+            return '';
+        }
+
+        return $this->parseTemplatePlaceholders($content, $placeholders);
+    }
+
+    protected function parseTemplatePlaceholders($content, array $placeholders = [])
+    {
+        $replacements = [];
+        foreach ($placeholders as $key => $value) {
+            $replacements['[[+' . $key . ']]'] = is_scalar($value) || $value === null
+                ? (string)$value
+                : json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        }
+
+        return strtr((string)$content, $replacements);
+    }
+
     public function fetchApiData()
     {
         $result = $this->requestPlantData();

@@ -1,6 +1,6 @@
 Changelog for growattStats
 
-1.0.1-beta2
+1.0.1-beta3
 ==============
 - Target MODX 2.8.x; request growattstats_token and growattstats_plant_id at installation.
 - Validate new-install credentials; preserve settings and history on upgrade.

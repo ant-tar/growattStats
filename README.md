@@ -4,7 +4,7 @@ Growatt solar generation statistics, a frontend history chart, and a MODX Manage
 
 ## Status and requirements
 
-Version **1.0.1-beta2** targets MODX Revolution **2.8.x**, PHP **7.4+** with cURL and JSON,
+Version **1.0.1-beta3** targets MODX Revolution **2.8.x**, PHP **7.4+** with cURL and JSON,
 and CronManager. Tested locally on MODX **2.8.8 / PHP 8.1.34**. MODX 3 is a separate future stage.
 
 This is a validation build, not yet cleared for submission to MODX Extras.
@@ -14,7 +14,7 @@ or the chart implementation replaced before public release. See [third-party not
 ## Installation
 
 1. Install CronManager.
-2. Upload `growattstats-1.0.1-beta2.transport.zip` through Extras > Installer.
+2. Upload `growattstats-1.0.1-beta3.transport.zip` through Extras > Installer.
 3. The installer requests **growattstats_token** (Growatt API token) and
    **growattstats_plant_id** (plant identifier). New installations require both.
 4. Add `[[!growattShowChart]]` to a resource, or use the `growattStats` alias.
@@ -31,6 +31,7 @@ is accepted and migrated to `growattstats_token`. Other settings and historical 
 
 | Setting | Default | Purpose |
 | --- | --- | --- |
+| `growattstats_api_url` | Growatt plant-data endpoint | API endpoint |
 | `growattstats_token` | empty | Growatt API token |
 | `growattstats_plant_id` | empty | Plant identifier |
 | `growattstats_plant_name` | empty | Display label |

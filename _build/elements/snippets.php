@@ -3,15 +3,14 @@
 return [
     'growattStats' => [
         'file' => 'growattstats',
-        'description' => 'growattStats snippet to list items',
+        'description' => 'Alias snippet for growattShowChart',
     ],
-	'growattShowChart' => [
+    'growattShowChart' => [
         'file' => 'growattshowchart',
         'description' => '',
     ],
-	'growattCronDataUpdate' => [
+    'growattCronDataUpdate' => [
         'file' => 'growattcrondataupdate',
-        'description' => '',
+        'description' => 'Refresh chart cache from Growatt API',
     ],
-
 ];

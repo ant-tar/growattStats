@@ -1,6 +1,7 @@
 <?php
+
 if (file_exists(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.core.php')) {
-    /** @noinspection PhpIncludeInspection */
+/** @noinspection PhpIncludeInspection */
     require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/config.core.php';
 } else {
     require_once dirname(dirname(dirname(dirname(dirname(__FILE__))))) . '/config.core.php';
@@ -10,14 +11,20 @@ require_once MODX_CORE_PATH . 'config/' . MODX_CONFIG_KEY . '.inc.php';
 /** @noinspection PhpIncludeInspection */
 require_once MODX_CONNECTORS_PATH . 'index.php';
 /** @var growattStats $growattStats */
-$growattStats = $modx->getService('growattStats', 'growattStats', MODX_CORE_PATH . 'components/growattstats/model/');
+$growattStats = $modx->getService(
+    'growattStats',
+    'growattStats',
+    MODX_CORE_PATH . 'components/growattstats/model/'
+);
 $modx->lexicon->load('growattstats:default');
-
 // handle request
-$corePath = $modx->getOption('growattstats_core_path', null, $modx->getOption('core_path') . 'components/growattstats/');
+$corePath = $modx->getOption(
+    'growattstats_core_path',
+    null,
+    $modx->getOption('core_path') . 'components/growattstats/'
+);
 $path = $modx->getOption('processorsPath', $growattStats->config, $corePath . 'processors/');
 $modx->getRequest();
-
 /** @var modConnectorRequest $request */
 $request = $modx->request;
 $request->handleRequest([

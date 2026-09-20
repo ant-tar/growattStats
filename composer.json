@@ -1,0 +1,10 @@
+{
+  "name": "ant-tar/growattstats",
+  "description": "Growatt energy generation statistics for MODX Revolution 2.x",
+  "type": "modx-extra",
+  "license": "GPL-2.0-or-later",
+  "require": {"php": ">=7.4", "ext-curl": "*", "ext-json": "*"},
+  "require-dev": {"squizlabs/php_codesniffer": "^3.13"},
+  "autoload": {"psr-4": {"GrowattStats\\": "core/components/growattstats/src/"}},
+  "scripts": {"check-style": "phpcs --standard=phpcs.xml.dist"}
+}

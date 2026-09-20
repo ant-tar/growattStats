@@ -1,2 +1,8 @@
 .idea
 config.core.php
+/vendor/
+/_build/dist/
+/_build/local/
+/assets/components/growattstats/data/*.json
+/assets/components/growattstats/data/*.js
+/2026-*.png

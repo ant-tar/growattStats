@@ -1,82 +1,125 @@
 <style>
-.js-growattstats .widget-left img { max-width: 48px; }
-g.highcharts-label.highcharts-range-label { display: block !important; }
-g.highcharts-label.highcharts-range-label > text { content: '/' !important; }
+.js-growattstats,
+.js-growattstats * {
+    box-sizing: border-box;
+}
+
+.js-growattstats {
+    width: 100%;
+}
+
+.js-growattstats .growattstats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.js-growattstats .growattstats-card {
+    border: 1px solid #e1e5ea;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.js-growattstats .growattstats-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 92px;
+    background: linear-gradient(90deg, #302b6b 0%, #2e5a90 100%);
+}
+
+.js-growattstats .growattstats-card-head img {
+    width: 48px;
+    height: 48px;
+    display: block;
+}
+
+.js-growattstats .growattstats-card-body {
+    padding: 14px 16px 16px;
+    text-align: center;
+}
+
+.js-growattstats .growattstats-value {
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 0 0 4px;
+}
+
+.js-growattstats .growattstats-label {
+    font-size: 0.95rem;
+    line-height: 1.35;
+    color: #5f6468;
+}
+
+.js-growattstats .growattstats-label strong {
+    color: #2e5a90;
+}
+
+.js-growattstats .growattstats-chart {
+    border: 1px solid #e1e5ea;
+    border-radius: 6px;
+    background: #fff;
+    padding: 12px;
+}
+
+.js-growattstats .growattstats-title {
+    margin: 0 0 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.js-growattstats .growattstats-note {
+    margin: 12px 0 0;
+    color: #6c757d;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+#growattstats-container {
+    width: 100%;
+    min-height: 400px;
+}
+
+@media (max-width: 767px) {
+    .js-growattstats .growattstats-grid {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
 
 <div class="js-growattstats">
-    <div class="row">
-
-        <div class="col-xs-12 col-md-3">
-            <div class="panel panel-blue panel-widget">
-                <div class="row no-padding">
-                    <div class="col-sm-3 col-lg-5 widget-left"
-                         style="background:linear-gradient(90deg,#302b6b 0%,#2e5a90 100%)">
-                        <img src="[[++assets_url]]components/growattstats/images/power.png" alt="">
-                    </div>
-                    <div class="col-sm-9 col-lg-6 widget-right">
-                        <div class="large">[[+today_energy]] kWh</div>
-                        <div class="text-muted">Generation <span class="blue-accent">Today</span></div>
-                    </div>
-                </div>
+    <div class="growattstats-grid">
+        <div class="growattstats-card">
+            <div class="growattstats-card-head">
+                <img src="[[++assets_url]]components/growattstats/images/power.png" alt="">
+            </div>
+            <div class="growattstats-card-body">
+                <div class="growattstats-value">[[+today_energy]] kWh</div>
+                <div class="growattstats-label">Generation <strong>Today</strong></div>
             </div>
         </div>
 
-        <div class="col-xs-12 col-md-3">
-            <div class="panel panel-orange panel-widget">
-                <div class="row no-padding">
-                    <div class="col-sm-3 col-lg-5 widget-left"
-                         style="background:linear-gradient(90deg,#302b6b 0%,#2e5a90 100%)">
-                        <img src="[[++assets_url]]components/growattstats/images/power.png" alt="">
-                    </div>
-                    <div class="col-sm-9 col-lg-6 widget-right">
-                        <div class="large">[[+total_energy]] kWh</div>
-                        <div class="text-muted"><span class="blue-accent">Total</span> Generation</div>
-                    </div>
-                </div>
+        <div class="growattstats-card">
+            <div class="growattstats-card-head">
+                <img src="[[++assets_url]]components/growattstats/images/power.png" alt="">
+            </div>
+            <div class="growattstats-card-body">
+                <div class="growattstats-value">[[+total_energy]] kWh</div>
+                <div class="growattstats-label"><strong>Total</strong> Generation</div>
             </div>
         </div>
-
-        <div class="col-xs-12 col-md-3">
-            <div class="panel panel-teal panel-widget">
-                <div class="row no-padding">
-                    <div class="col-sm-3 col-lg-5 widget-left"
-                         style="background:linear-gradient(90deg,#302b6b 0%,#2e5a90 100%)">
-                        <img src="[[++assets_url]]components/growattstats/images/revenue.png" alt="">
-                    </div>
-                    <div class="col-sm-9 col-lg-6 widget-right">
-                        <div class="large">[[+today_revenue]] DKK</div>
-                        <div class="text-muted">Revenue <span class="blue-accent">Today</span></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xs-12 col-md-3">
-            <div class="panel panel-teal panel-widget">
-                <div class="row no-padding">
-                    <div class="col-sm-3 col-lg-5 widget-left"
-                         style="background:linear-gradient(90deg,#302b6b 0%,#2e5a90 100%)">
-                        <img src="[[++assets_url]]components/growattstats/images/revenue.png" alt="">
-                    </div>
-                    <div class="col-sm-9 col-lg-6 widget-right">
-                        <div class="large">[[+total_revenue]] DKK</div>
-                        <div class="text-muted"><span class="blue-accent">Total</span> Revenue</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="panel panel-default">
-                <div class="panel-heading">[[+plant_name]]</div>
-                <div class="panel-body">
-                    <div id="growattstats-container" style="height:400px;min-width:310px"></div>
-                </div>
-            </div>
-        </div>
+    <div class="growattstats-chart">
+        <div class="growattstats-title">[[+plant_name:htmlent]]</div>
+        <div id="growattstats-container"></div>
+        <p class="growattstats-note">
+            The graph shows daily electricity production from the solar installation at the configured plant.
+            Use the range selector or drag the navigator to inspect the history.
+        </p>
     </div>
 </div>

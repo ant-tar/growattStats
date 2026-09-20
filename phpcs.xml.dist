@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<ruleset name="growattStats">
+    <description>PSR-12 for component PHP, including MODX entry points.</description>
+    <arg name="extensions" value="php"/>
+    <file>_build</file>
+    <file>core/components/growattstats</file>
+    <file>assets/components/growattstats/connector.php</file>
+    <exclude-pattern>_build/local/*</exclude-pattern>
+    <exclude-pattern>_build/dist/*</exclude-pattern>
+    <rule ref="PSR12"/>
+</ruleset>

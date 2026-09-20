@@ -1,5 +1,16 @@
 Changelog for growattStats
 
+1.0.1-beta2
+==============
+- Target MODX 2.8.x; request growattstats_token and growattstats_plant_id at installation.
+- Validate new-install credentials; preserve settings and history on upgrade.
+- Keep compatibility with legacy token_id settings and both JavaScript history formats.
+- Preserve the newer local API helpers and separate frontend/Manager templates.
+- Introduce PSR-4 service loading with a MODX 2 class alias and PSR-12 checks.
+- Fix Manager widget path and protect chart JSON from MODX tag parsing.
+- Exclude runtime history from transport packages and disable automatic installation at build time.
+- Add runtime and transport lifecycle tests; document outstanding Highstock licensing review.
+
 1.0.0-pl
 ==============
 - Initial release.

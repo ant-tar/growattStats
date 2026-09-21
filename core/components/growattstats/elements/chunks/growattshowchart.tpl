@@ -16,46 +16,85 @@
 }
 
 .js-growattstats .growattstats-card {
-    border: 1px solid #e1e5ea;
-    border-radius: 6px;
-    overflow: hidden;
-    background: #fff;
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid #e7d8bc;
+    border-top: 3px solid #d99a28;
+    border-radius: 10px;
+    background: #fffbf3;
+}
+
+.js-growattstats .growattstats-card--total {
+    border-color: #cedced;
+    border-top-color: #4078b8;
+    background: #f5f9ff;
 }
 
 .js-growattstats .growattstats-card-head {
     display: flex;
     align-items: center;
-    justify-content: center;
-    min-height: 92px;
-    background: linear-gradient(90deg, #302b6b 0%, #2e5a90 100%);
+    gap: 12px;
 }
 
-.js-growattstats .growattstats-card-head img {
-    width: 48px;
-    height: 48px;
+.js-growattstats .growattstats-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    color: #98600c;
+    background: #fff0cc;
+}
+
+.js-growattstats .growattstats-card--total .growattstats-icon {
+    color: #2c609c;
+    background: #e3edfc;
+}
+
+.js-growattstats .growattstats-icon svg {
     display: block;
+    width: 26px;
+    height: 26px;
 }
 
 .js-growattstats .growattstats-card-body {
-    padding: 14px 16px 16px;
-    text-align: center;
+    padding-top: 18px;
 }
 
 .js-growattstats .growattstats-value {
-    font-size: 1.35rem;
+    margin: 0;
+    color: #1b2e45;
+    font-size: clamp(1.15rem, 2vw, 1.5rem);
     font-weight: 700;
-    line-height: 1.1;
-    margin: 0 0 4px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.js-growattstats .growattstats-unit {
+    color: #5b6879;
+    font-size: 0.8rem;
+    font-weight: 400;
+    white-space: nowrap;
 }
 
 .js-growattstats .growattstats-label {
-    font-size: 0.95rem;
-    line-height: 1.35;
-    color: #5f6468;
+    color: #5b6879;
+    font-size: 0.85rem;
+    line-height: 1.4;
 }
 
 .js-growattstats .growattstats-label strong {
-    color: #2e5a90;
+    display: block;
+    color: #795011;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.js-growattstats .growattstats-card--total .growattstats-label strong {
+    color: #2c609c;
 }
 
 .js-growattstats .growattstats-chart {
@@ -93,23 +132,34 @@
 
 <div class="js-growattstats">
     <div class="growattstats-grid">
-        <div class="growattstats-card">
+        <div class="growattstats-card growattstats-card--today">
             <div class="growattstats-card-head">
-                <img src="[[++assets_url]]components/growattstats/images/power.png" alt="">
+                <span class="growattstats-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path>
+                    </svg>
+                </span>
+                <div class="growattstats-label">Generation<strong>Today</strong></div>
             </div>
             <div class="growattstats-card-body">
-                <div class="growattstats-value">[[+today_energy]] kWh</div>
-                <div class="growattstats-label">Generation <strong>Today</strong></div>
+                <div class="growattstats-value">[[+today_energy]] <span class="growattstats-unit">kWh</span></div>
             </div>
         </div>
 
-        <div class="growattstats-card">
+        <div class="growattstats-card growattstats-card--total">
             <div class="growattstats-card-head">
-                <img src="[[++assets_url]]components/growattstats/images/power.png" alt="">
+                <span class="growattstats-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <path d="M4 20v-4m5 4v-7m5 7V10m5 10V7M3 11l6-5 5 1 6-5m-5 0h5v5"></path>
+                    </svg>
+                </span>
+                <div class="growattstats-label">Generation<strong>All time</strong></div>
             </div>
             <div class="growattstats-card-body">
-                <div class="growattstats-value">[[+total_energy]] kWh</div>
-                <div class="growattstats-label"><strong>Total</strong> Generation</div>
+                <div class="growattstats-value">[[+total_energy]] <span class="growattstats-unit">kWh</span></div>
             </div>
         </div>
     </div>

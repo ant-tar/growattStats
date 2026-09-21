@@ -1,5 +1,10 @@
 Changelog for growattStats
 
+1.0.1-beta5
+==============
+- Distinguish today's and all-time generation cards with light amber/blue surfaces and semantic inline SVG icons.
+- Use compact card headers and responsive energy values instead of identical gradient banners.
+
 1.0.1-beta4
 ==============
 - Retain original history as a documentation example, separate from runtime history.

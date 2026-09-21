@@ -16,13 +16,54 @@
 }
 
 .js-growattstats-widget .growattstats-widget-tile {
-    border: 1px solid #d9dee5;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    border: 1px solid #e7d8bc;
+    border-left: 3px solid #d99a28;
     border-radius: 6px;
-    background: #fff;
+    background: #fffbf3;
     padding: 10px 12px;
 }
 
+.js-growattstats-widget .growattstats-widget-tile--total {
+    border-color: #cedced;
+    border-left-color: #4078b8;
+    background: #f5f9ff;
+}
+
+.js-growattstats-widget .growattstats-widget-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    color: #98600c;
+    background: #fff0cc;
+}
+
+.js-growattstats-widget .growattstats-widget-tile--total .growattstats-widget-icon {
+    color: #2c609c;
+    background: #e3edfc;
+}
+
+.js-growattstats-widget .growattstats-widget-icon svg {
+    display: block;
+    width: 24px;
+    height: 24px;
+}
+
+.js-growattstats-widget .growattstats-widget-reading {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
 .js-growattstats-widget .growattstats-widget-value {
+    color: #1b2e45;
+    font-variant-numeric: tabular-nums;
     font-size: 1.1rem;
     font-weight: 700;
     line-height: 1.15;
@@ -63,13 +104,30 @@
 
 <div class="js-growattstats-widget">
     <div class="growattstats-widget-top">
-        <div class="growattstats-widget-tile">
-            <div class="growattstats-widget-value">[[+today_energy]] kWh</div>
-            <div class="growattstats-widget-label">Generation Today</div>
+        <div class="growattstats-widget-tile growattstats-widget-tile--today">
+            <span class="growattstats-widget-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path>
+                    </svg>
+            </span>
+            <div class="growattstats-widget-reading">
+                <div class="growattstats-widget-value">[[+today_energy]] kWh</div>
+                <div class="growattstats-widget-label">Generation Today</div>
+            </div>
         </div>
-        <div class="growattstats-widget-tile">
-            <div class="growattstats-widget-value">[[+total_energy]] kWh</div>
-            <div class="growattstats-widget-label">Total Generation</div>
+        <div class="growattstats-widget-tile growattstats-widget-tile--total">
+            <span class="growattstats-widget-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <path d="M4 20v-4m5 4v-7m5 7V10m5 10V7M3 11l6-5 5 1 6-5m-5 0h5v5"></path>
+                    </svg>
+            </span>
+            <div class="growattstats-widget-reading">
+                <div class="growattstats-widget-value">[[+total_energy]] kWh</div>
+                <div class="growattstats-widget-label">Total Generation</div>
+            </div>
         </div>
     </div>
 

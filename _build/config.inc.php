@@ -8,5 +8,5 @@ return [
     'name' => 'growattStats',
     'name_lower' => 'growattstats',
     'version' => '1.0.1',
-    'release' => 'beta5',
+    'release' => 'beta6',
 ];

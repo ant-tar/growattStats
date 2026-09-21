@@ -1,5 +1,9 @@
 Changelog for growattStats
 
+1.0.1-beta6
+==============
+- Add matching sun/growth SVG icons and amber/blue accents to compact Manager dashboard cards.
+
 1.0.1-beta5
 ==============
 - Distinguish today's and all-time generation cards with light amber/blue surfaces and semantic inline SVG icons.

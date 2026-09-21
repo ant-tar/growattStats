@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">growattStats</title>
+  <desc id="description">Solar generation statistics: a rounded sun outline enclosing three rising bars, on a transparent canvas.</desc>
+  <g fill="none" stroke="#69b32e" stroke-width="20" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="256" cy="280" r="132"/>
+    <path d="M256 72v28M116 132l20 20M68 280h28M416 280h28M376 152l20-20"/>
+    <path d="M200 332v-40M256 332v-76M312 332V220"/>
+  </g>
+</svg>

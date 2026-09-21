@@ -1,0 +1,40 @@
+{
+  "name": "growattStats",
+  "slug": "growattstats",
+  "version": "1.0.1-beta11",
+  "release_status": "beta",
+  "author": "Anton Tarasov",
+  "github_account": "ant-tar",
+  "modx_requirement": ">=2.8.0 <3.0.0",
+  "php_requirement": ">=7.4",
+  "php_extensions": [
+    "curl",
+    "json"
+  ],
+  "dependency": {
+    "cronmanager": ">=1.2.2"
+  },
+  "tested": {
+    "modx": "2.8.8",
+    "php": "8.1.34",
+    "cronmanager": "1.5.1",
+    "database": "MySQL"
+  },
+  "languages": [
+    "en",
+    "ru"
+  ],
+  "component_license": "GPL-2.0-or-later",
+  "third_party": "Highstock 12.1.2: redistribution rights not yet confirmed",
+  "publication_ready": false,
+  "artifact": "growattstats-1.0.1-beta11.transport.zip",
+  "artifact_bytes": 234717,
+  "artifact_sha256": "81d047ea7c47996fcc829594d280f9c7d921c91705badc3fd3f23dddd51d0879",
+  "repository": "https://github.com/ant-tar/growattStats",
+  "documentation": "https://github.com/ant-tar/growattStats/blob/main/README.md",
+  "support": "https://github.com/ant-tar/growattStats/issues",
+  "icon": "docs/assets/growattstats-icon.png",
+  "alternate_icon": "docs/assets/growattstats-icon-green.png",
+  "default_job_minutes": 15,
+  "external_scheduler_minutes": 1
+}

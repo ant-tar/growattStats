@@ -107,7 +107,7 @@ class Service
         if (!in_array($method, ['GET', 'POST', 'PUT'], true)) {
             return [
                 'success' => false,
-                'error' => 'Unsupported HTTP method: ' . $method,
+                'error' => $this->modx->lexicon('growattstats_error_method') . ': ' . $method,
                 'http_code' => 0,
                 'method' => $method,
                 'url' => $url,
@@ -118,7 +118,7 @@ class Service
         if ($requestUrl === '') {
             return [
                 'success' => false,
-                'error' => 'Empty API URL',
+                'error' => $this->modx->lexicon('growattstats_error_url'),
                 'http_code' => 0,
                 'method' => $method,
                 'url' => $requestUrl,
@@ -126,7 +126,7 @@ class Service
         }
 
         if (!function_exists('curl_init')) {
-            return ['success' => false, 'error' => 'PHP cURL is required', 'http_code' => 0];
+            return ['success' => false, 'error' => $this->modx->lexicon('growattstats_error_curl'), 'http_code' => 0];
         }
 
         $timeout = isset($options['timeout']) ? (int)$options['timeout'] : 20;
@@ -155,7 +155,7 @@ class Service
                 if ($encodedBody === false) {
                     return [
                         'success' => false,
-                        'error' => 'Could not encode API body to JSON',
+                        'error' => $this->modx->lexicon('growattstats_error_body'),
                         'http_code' => 0,
                         'method' => $method,
                         'url' => $requestUrl,
@@ -177,7 +177,8 @@ class Service
         if ($response === false || $response === null || $httpCode < 200 || $httpCode >= 300) {
             return [
                 'success' => false,
-                'error' => $curlError !== '' ? $curlError : 'Unexpected HTTP code: ' . $httpCode,
+                'error' => $curlError !== ''
+                    ? $curlError : $this->modx->lexicon('growattstats_error_http') . ': ' . $httpCode,
                 'http_code' => $httpCode,
                 'method' => $method,
                 'url' => $requestUrl,
@@ -191,7 +192,8 @@ class Service
             $errorCode = $decoded['error_code'] ?? null;
             $errorMsg = isset($decoded['error_msg']) ? trim((string)$decoded['error_msg']) : '';
             if ((is_numeric($errorCode) && (int)$errorCode !== 0) || $errorMsg !== '') {
-                $apiError = 'Growatt API error' . ($errorCode !== null ? ' #' . $errorCode : '');
+                $apiError = $this->modx->lexicon('growattstats_error_api')
+                    . ($errorCode !== null ? ' #' . $errorCode : '');
             }
         }
 
@@ -264,7 +266,7 @@ class Service
         if ($key === '' || empty($map[$key])) {
             return [
                 'success' => false,
-                'error' => 'Unknown Growatt command: ' . $command,
+                'error' => $this->modx->lexicon('growattstats_error_command') . ': ' . $command,
                 'http_code' => 0,
                 'method' => 'GET',
                 'url' => '',
@@ -490,13 +492,19 @@ class Service
         $dir = dirname($dataFile);
 
         if (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir)) {
-            $this->modx->log(modX::LOG_LEVEL_ERROR, '[growattStats] Could not create data directory: ' . $dir);
+            $this->modx->log(
+                modX::LOG_LEVEL_ERROR,
+                '[growattStats] ' . $this->modx->lexicon('growattstats_error_directory') . ': ' . $dir
+            );
             return false;
         }
 
         $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         if ($json === false) {
-            $this->modx->log(modX::LOG_LEVEL_ERROR, '[growattStats] Could not encode chart payload to JSON');
+            $this->modx->log(
+                modX::LOG_LEVEL_ERROR,
+                '[growattStats] ' . $this->modx->lexicon('growattstats_error_json')
+            );
             return false;
         }
 
@@ -540,7 +548,8 @@ class Service
         if (empty($result['success']) || !is_array($data) || !isset($data['today_energy'], $data['total_energy'])) {
             $this->modx->log(
                 modX::LOG_LEVEL_ERROR,
-                '[growattStats] Plant data request failed; HTTP ' . ($result['http_code'] ?? 0)
+                '[growattStats] ' . $this->modx->lexicon('growattstats_error_request')
+                . ': ' . ($result['http_code'] ?? 0)
             );
             return false;
         }
@@ -685,9 +694,20 @@ class Service
             json_encode($seriesJson, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)
         );
 
+        $labels = [];
+        foreach (
+            ['series', 'locale', 'range_month', 'range_quarter', 'range_half_year', 'range_ytd',
+            'range_year', 'range_all', 'zoom', 'reset_zoom', 'reset_zoom_title', 'loading'] as $key
+        ) {
+            $labels[$key] = $this->modx->lexicon('growattstats_' . $key);
+        }
+        $labelsJson = json_encode($labels, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+        $labelsJson = str_replace(['[', ']'], ['\\u005B', '\\u005D'], $labelsJson);
+
         $script = '<script>
 (function () {
     var seriesData = JSON.parse(' . $seriesJson . ');
+    var labels = ' . $labelsJson . ';
 
     function initGrowattChart() {
         if (typeof Highcharts === "undefined") {
@@ -697,22 +717,25 @@ class Service
 
         Highcharts.stockChart("growattstats-container", {
             chart: { zoomType: "x" },
+            time: { locale: labels.locale },
+            lang: { rangeSelectorZoom: labels.zoom, resetZoom: labels.reset_zoom,
+                resetZoomTitle: labels.reset_zoom_title, loading: labels.loading },
             xAxis: { minRange: 3600 * 1000 },
             rangeSelector: {
                 selected: 5,
                 inputEnabled: false,
                 buttons: [
-                    { type: "month", count: 1, text: "1m" },
-                    { type: "month", count: 3, text: "3m" },
-                    { type: "month", count: 6, text: "6m" },
-                    { type: "ytd", text: "YTD" },
-                    { type: "year", count: 1, text: "1y" },
-                    { type: "all", text: "All" }
+                    { type: "month", count: 1, text: labels.range_month },
+                    { type: "month", count: 3, text: labels.range_quarter },
+                    { type: "month", count: 6, text: labels.range_half_year },
+                    { type: "ytd", text: labels.range_ytd },
+                    { type: "year", count: 1, text: labels.range_year },
+                    { type: "all", text: labels.range_all }
                 ]
             },
             title: { text: null },
             series: [{
-                name: "Generation (kWh)",
+                name: labels.series,
                 data: seriesData,
                 color: "#2e5a90"
             }]
@@ -733,7 +756,8 @@ class Service
     public function refreshCacheMessage()
     {
         return $this->refreshCache()
-            ? '[growattStats] Cache updated successfully' : '[growattStats] Cache update failed';
+            ? '[growattStats] ' . $this->modx->lexicon('growattstats_cron_success')
+            : '[growattStats] ' . $this->modx->lexicon('growattstats_cron_failed');
     }
 
     public function getStats()

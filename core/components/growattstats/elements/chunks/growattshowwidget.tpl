@@ -113,8 +113,8 @@
                     </svg>
             </span>
             <div class="growattstats-widget-reading">
-                <div class="growattstats-widget-value">[[+today_energy]] kWh</div>
-                <div class="growattstats-widget-label">Generation Today</div>
+                <div class="growattstats-widget-value">[[+today_energy]] [[%growattstats_unit:htmlent]]</div>
+                <div class="growattstats-widget-label">[[%growattstats_today_energy:htmlent]]</div>
             </div>
         </div>
         <div class="growattstats-widget-tile growattstats-widget-tile--total">
@@ -125,8 +125,8 @@
                     </svg>
             </span>
             <div class="growattstats-widget-reading">
-                <div class="growattstats-widget-value">[[+total_energy]] kWh</div>
-                <div class="growattstats-widget-label">Total Generation</div>
+                <div class="growattstats-widget-value">[[+total_energy]] [[%growattstats_unit:htmlent]]</div>
+                <div class="growattstats-widget-label">[[%growattstats_total_energy:htmlent]]</div>
             </div>
         </div>
     </div>

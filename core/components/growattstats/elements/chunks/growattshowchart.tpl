@@ -141,10 +141,10 @@
                         <path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path>
                     </svg>
                 </span>
-                <div class="growattstats-label">Generation<strong>Today</strong></div>
+                <div class="growattstats-label">[[%growattstats_generation:htmlent]]<strong>[[%growattstats_today:htmlent]]</strong></div>
             </div>
             <div class="growattstats-card-body">
-                <div class="growattstats-value">[[+today_energy]] <span class="growattstats-unit">kWh</span></div>
+                <div class="growattstats-value">[[+today_energy]] <span class="growattstats-unit">[[%growattstats_unit:htmlent]]</span></div>
             </div>
         </div>
 
@@ -156,10 +156,10 @@
                         <path d="M4 20v-4m5 4v-7m5 7V10m5 10V7M3 11l6-5 5 1 6-5m-5 0h5v5"></path>
                     </svg>
                 </span>
-                <div class="growattstats-label">Generation<strong>All time</strong></div>
+                <div class="growattstats-label">[[%growattstats_generation:htmlent]]<strong>[[%growattstats_all_time:htmlent]]</strong></div>
             </div>
             <div class="growattstats-card-body">
-                <div class="growattstats-value">[[+total_energy]] <span class="growattstats-unit">kWh</span></div>
+                <div class="growattstats-value">[[+total_energy]] <span class="growattstats-unit">[[%growattstats_unit:htmlent]]</span></div>
             </div>
         </div>
     </div>
@@ -168,8 +168,7 @@
         <div class="growattstats-title">[[+plant_name:htmlent]]</div>
         <div id="growattstats-container"></div>
         <p class="growattstats-note">
-            The graph shows daily electricity production from the solar installation at the configured plant.
-            Use the range selector or drag the navigator to inspect the history.
+            [[%growattstats_chart_note:htmlent]]
         </p>
     </div>
 </div>

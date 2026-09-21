@@ -4,13 +4,14 @@ if (!isset($transport) || !($transport instanceof xPDOTransport)) {
     return false;
 }
 $modx = $transport->xpdo;
+$translate = require dirname(__DIR__) . '/setup-lexicon.php';
 $action = $options[xPDOTransport::PACKAGE_ACTION] ?? null;
 $modelPath = $modx->getOption('cronmanager.core_path', null, MODX_CORE_PATH . 'components/cronmanager/');
 if (!is_file($modelPath . 'model/cronmanager/modcronjob.class.php')) {
     if ($action === xPDOTransport::ACTION_UNINSTALL) {
         return true;
     }
-    $modx->log(modX::LOG_LEVEL_ERROR, '[growattStats] Install CronManager before installing this package.');
+    $modx->log(modX::LOG_LEVEL_ERROR, '[growattStats] ' . $translate('growattstats_setup_dependency'));
     return false;
 }
 $modx->addPackage('cronmanager', $modelPath . 'model/');
@@ -55,6 +56,6 @@ if (!$job->save()) {
 }
 $modx->log(
     modX::LOG_LEVEL_INFO,
-    '[growattStats] Created a 15-minute refresh job. Schedule CronManager cron.php externally every minute.'
+    '[growattStats] ' . $translate('growattstats_setup_created')
 );
 return true;

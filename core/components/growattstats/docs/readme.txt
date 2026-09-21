@@ -4,7 +4,7 @@ Growatt solar generation statistics, a frontend history chart, and a MODX Manage
 
 ## Status and requirements
 
-Version **1.0.1-beta6** targets MODX Revolution **2.8.x**, PHP **7.4+** with cURL and JSON,
+Version **1.0.1-beta7** targets MODX Revolution **2.8.x**, PHP **7.4+** with cURL and JSON,
 and CronManager 1.2.2 or later (tested with 1.5.1). Tested locally on MODX **2.8.8 / PHP 8.1.34**. MODX 3 is a separate future stage.
 
 This is a validation build, not yet cleared for submission to MODX Extras.
@@ -14,7 +14,7 @@ or the chart implementation replaced before public release. See [third-party not
 ## Installation
 
 1. Install CronManager.
-2. Upload `growattstats-1.0.1-beta6.transport.zip` through Extras > Installer.
+2. Upload `growattstats-1.0.1-beta7.transport.zip` through Extras > Installer.
 3. The installer requests **growattstats_token** (Growatt API token) and
    **growattstats_plant_id** (plant identifier). New installations require both.
 4. Add `[[!growattShowChart]]` to a resource, or use the `growattStats` alias.
@@ -70,11 +70,32 @@ an **external scheduler** that invokes CronManager. Installing a MODX Extra cann
 the hosting account's crontab automatically. CronManager is declared as a required dependency;
 its installation must be completed before growattStats is installed.
 
-On Linux, add this line to the hosting scheduler/crontab, using your PHP and site paths:
+The **cron service must be running**: a crontab entry alone does not start it.
+On a Debian/Ubuntu server using the standard `cron` package and systemd, an administrator can run:
+
+```sh
+sudo apt-get install cron
+sudo systemctl enable --now cron
+systemctl is-active cron
+```
+
+On RHEL-compatible systems, install `cronie` with the distribution package manager,
+then run `sudo systemctl enable --now crond` and check `systemctl is-active crond`.
+On shared hosting, use the control panel's Cron Jobs page; ask the host to enable the scheduler
+if that feature is unavailable. These service commands require server administrator access.
+
+As the site's operating-system user, run `crontab -e` and add the following line,
+using absolute paths to your CLI PHP executable and MODX installation:
 
 ```cron
 * * * * * /usr/bin/php /path/to/modx/assets/components/cronmanager/cron.php
 ```
+
+Save the file, then use `crontab -l` to confirm the entry. This is a user crontab:
+do not add a username column. The scheduler's user needs access to MODX configuration/database
+and write access to the component's data directory and MODX cache. CLI PHP needs cURL and JSON.
+Run `/usr/bin/php /path/to/modx/assets/components/cronmanager/cron.php` manually once
+with the same user and inspect the CronManager log to diagnose execution errors.
 
 On Windows/Laragon, use Task Scheduler with a one-minute trigger. For this development site:
 
@@ -99,7 +120,17 @@ To check the chain: inspect the job's Last run / Next run columns and log, then 
 at night. The API used here reports current plant values; cron only accumulates readings from
 successful runs and does not reconstruct missed historical dates.
 
-Reference: [CronManager usage](https://jako.github.io/CronManager/usage/).
+Documentation: [CronManager setup and usage](https://jako.github.io/CronManager/usage/),
+[crontab syntax](https://man7.org/linux/man-pages/man5/crontab.5.html),
+[Ubuntu cron guide](https://help.ubuntu.com/community/CronHowto),
+and [Red Hat cron service setup](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/html/system_administrators_guide/ch-automating_system_tasks).
+
+## Languages
+
+English and Russian lexicons cover the component's cards, chart controls, settings,
+runtime messages, and installer. MODX selects the runtime language; setup uses the Manager
+language with English fallback. Installer translations are embedded in the transport archive,
+so they also work before the component's files are installed.
 
 ## Development
 

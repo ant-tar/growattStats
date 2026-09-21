@@ -22,6 +22,38 @@ $builder->createPackage($config['name_lower'], $config['version'], $config['rele
 $builder->registerNamespace('growattstats', false, true, '{core_path}components/growattstats/');
 $core = dirname(__DIR__) . '/core/components/growattstats/';
 $assets = dirname(__DIR__) . '/assets/components/growattstats/';
+$readLexicon = static function ($file) {
+    $_lang = [];
+    include $file;
+    return $_lang;
+};
+$english = $readLexicon($core . 'lexicon/en/default.inc.php');
+$catalogue = [];
+foreach (glob($core . 'lexicon/*/setup.inc.php') as $file) {
+    $catalogue[basename(dirname($file))] = $readLexicon($file);
+}
+$helper = preg_replace('/^<\?php\s*/', '', file_get_contents(__DIR__ . '/setup-lexicon.php'));
+$helper = str_replace(
+    '$catalogue = []; // GROWATTSTATS_SETUP_CATALOGUE',
+    '$catalogue = ' . var_export($catalogue, true) . ';',
+    $helper
+);
+$installerDirectory = $builder->directory . 'installer/';
+if (!is_dir($installerDirectory)) {
+    mkdir($installerDirectory, 0775, true);
+}
+foreach (
+    ['setup.options.php', 'validators/credentials.php',
+    'resolvers/setupoptions.resolver.php', 'resolvers/cronjob.resolver.php'] as $script
+) {
+    $source = file_get_contents(__DIR__ . '/' . $script);
+    $source = str_replace(
+        ["require __DIR__ . '/setup-lexicon.php'", "require dirname(__DIR__) . '/setup-lexicon.php'"],
+        '(static function () use ($modx) {' . $helper . '})()',
+        $source
+    );
+    file_put_contents($installerDirectory . basename($script), $source);
+}
 $category = $modx->newObject('modCategory');
 $category->set('category', 'growattStats');
 $related = [];
@@ -37,7 +69,7 @@ foreach (['snippets' => 'modSnippet', 'chunks' => 'modChunk'] as $type => $class
         $object = $modx->newObject($class);
         $object->fromArray([
             'name' => $name,
-            'description' => $definition['description'],
+            'description' => $english[$definition['description']] ?? $definition['description'],
             'snippet' => $content,
             'static' => false,
         ], '', true, true);
@@ -59,7 +91,7 @@ $vehicle = $builder->createVehicle($category, [
     xPDOTransport::RELATED_OBJECT_ATTRIBUTES => $related,
     xPDOTransport::ABORT_INSTALL_ON_VEHICLE_FAIL => true,
 ]);
-$vehicle->validate('php', ['source' => __DIR__ . '/validators/credentials.php']);
+$vehicle->validate('php', ['source' => $installerDirectory . 'credentials.php']);
 $vehicle->resolve('file', [
     'source' => $core,
     'target' => "return MODX_CORE_PATH . 'components/';",
@@ -71,8 +103,8 @@ foreach (['css', 'js', 'images', 'connector.php'] as $path) {
         'target' => "return MODX_ASSETS_PATH . 'components/growattstats/';",
     ]);
 }
-$vehicle->resolve('php', ['source' => __DIR__ . '/resolvers/setupoptions.resolver.php']);
-$vehicle->resolve('php', ['source' => __DIR__ . '/resolvers/cronjob.resolver.php']);
+$vehicle->resolve('php', ['source' => $installerDirectory . 'setupoptions.resolver.php']);
+$vehicle->resolve('php', ['source' => $installerDirectory . 'cronjob.resolver.php']);
 $builder->putVehicle($vehicle);
 
 $settings = require __DIR__ . '/elements/settings.php';
@@ -102,7 +134,7 @@ $builder->setPackageAttributes([
     'changelog' => file_get_contents($core . 'docs/changelog.txt'),
     'license' => file_get_contents($core . 'docs/license.txt'),
     'readme' => file_get_contents($core . 'docs/readme.txt'),
-    'setup-options' => ['source' => __DIR__ . '/setup.options.php'],
+    'setup-options' => ['source' => $installerDirectory . 'setup.options.php'],
     'requires' => ['modx' => '>=2.8.0 <3.0.0', 'php' => '>=7.4', 'cronmanager' => '>=1.2.2'],
 ]);
 if (!$builder->pack()) {

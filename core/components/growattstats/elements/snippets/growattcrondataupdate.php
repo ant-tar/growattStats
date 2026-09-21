@@ -1,6 +1,7 @@
 <?php
 
-$modx->log(modX::LOG_LEVEL_INFO, '[growattStats] CronDataUpdate started');
+$modx->lexicon->load('growattstats:default');
+$modx->log(modX::LOG_LEVEL_INFO, '[growattStats] ' . $modx->lexicon('growattstats_cron_started'));
 
 /** @var growattStats $growattstats */
 $growattstats = $modx->getService(
@@ -9,9 +10,12 @@ $growattstats = $modx->getService(
     $modx->getOption('growattstats_core_path', null, MODX_CORE_PATH . 'components/growattstats/') . 'model/'
 );
 if (!$growattstats) {
-    $modx->log(modX::LOG_LEVEL_ERROR, '[growattStats] Could not load growattStats class');
+    $modx->log(modX::LOG_LEVEL_ERROR, '[growattStats] ' . $modx->lexicon('growattstats_err_class'));
     if (!empty($scriptProperties['CronManager'])) {
-        return json_encode(['error' => true, 'message' => '[growattStats] Could not load service']);
+        return json_encode([
+            'error' => true,
+            'message' => '[growattStats] ' . $modx->lexicon('growattstats_err_class'),
+        ]);
     }
     return false;
 }
@@ -19,14 +23,15 @@ if (!$growattstats) {
 $result = $growattstats->refreshCache();
 $modx->log(
     modX::LOG_LEVEL_INFO,
-    '[growattStats] CronDataUpdate: ' . ($result ? 'success' : 'failed')
+    '[growattStats] ' . $modx->lexicon($result ? 'growattstats_cron_success' : 'growattstats_cron_failed')
 );
 
 if (!empty($scriptProperties['CronManager'])) {
     return json_encode([
         'error' => !$result,
         'message' => $result
-            ? '[growattStats] Readings updated' : '[growattStats] Refresh failed; previous data retained',
+            ? '[growattStats] ' . $modx->lexicon('growattstats_cron_success')
+            : '[growattStats] ' . $modx->lexicon('growattstats_cron_failed'),
     ]);
 }
 return $result;

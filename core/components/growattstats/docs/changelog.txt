@@ -1,3 +1,8 @@
+growattStats 1.0.1-beta7 (2026-09-21)
+- Complete English/Russian UI and installer lexicons, including chart controls and cron messages.
+- Embed installer translations for clean installations.
+- Document cron service startup, user crontab setup and official references.
+
 Changelog for growattStats
 
 1.0.1-beta6

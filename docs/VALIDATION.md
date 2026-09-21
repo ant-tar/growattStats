@@ -46,3 +46,19 @@ an explicitly designated disposable database (see README).
   the CronManager job log reports `[growattStats] Readings updated` with error=false.
 - Direct CLI package installations must refresh the MODX cache afterward, as the Package Manager
   processor does. This avoids executing an older compiled version of the cron snippet.
+
+## Beta7: lexicons and scheduler instructions
+
+- English/Russian key parity, card rendering, chart labels/date locale, installer translations
+  and English fallback pass `_build/test-lexicons.php`.
+- Installer translations are embedded in transported scripts; clean-install validation works
+  before the namespace's files exist.
+- Disposable MODX transport lifecycle passes: required credentials, 15-minute job creation,
+  uninstall cleanup, upgrade preservation and no duplicate jobs.
+- PSR-12 and PHP syntax checks pass.
+- Local upgrade preserves settings and history. Chrome renders 1,242 chart points on both
+  frontend and generated Manager widget, with no JavaScript errors. Dashboard cards have
+  two SVG icons and no overflow at 1,100px and 390px viewports.
+- Existing CronManager job remains active every 15 minutes with a successful latest log.
+- README/package readme explain service startup, crontab setup and Windows scheduling,
+  with CronManager, crontab, Ubuntu and Red Hat documentation links.

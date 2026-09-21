@@ -1,10 +1,10 @@
 <?php
 
 return [
-    'growattShowWidget' => ['file' => 'growattshowwidget', 'description' => 'Dashboard chart'],
+    'growattShowWidget' => ['file' => 'growattshowwidget', 'description' => 'growattstats_desc_widget'],
     'growattShowChart' => [
         'file' => 'growattshowchart',
-        'description' => '',
+        'description' => 'growattstats_desc_chart',
     ],
 
 ];

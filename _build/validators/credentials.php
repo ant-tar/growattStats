@@ -8,9 +8,10 @@ if (!in_array($action, [xPDOTransport::ACTION_INSTALL, xPDOTransport::ACTION_UPG
     return true;
 }
 $modx = $transport->xpdo;
+$translate = require dirname(__DIR__) . '/setup-lexicon.php';
 $cronPath = $modx->getOption('cronmanager.core_path', null, MODX_CORE_PATH . 'components/cronmanager/');
 if (!is_file($cronPath . 'model/cronmanager/modcronjob.class.php')) {
-    $modx->log(modX::LOG_LEVEL_ERROR, '[growattStats] CronManager must be installed first.');
+    $modx->log(modX::LOG_LEVEL_ERROR, '[growattStats] ' . $translate('growattstats_setup_dependency'));
     return false;
 }
 $values = [];
@@ -26,7 +27,7 @@ foreach (['plant_id', 'token'] as $name) {
         $value = $legacy ? trim((string) $legacy->get('value')) : '';
     }
     if ($value === '') {
-        $modx->log(modX::LOG_LEVEL_ERROR, '[growattStats] API token and Plant ID are required.');
+        $modx->log(modX::LOG_LEVEL_ERROR, '[growattStats] ' . $translate('growattstats_setup_required'));
         return false;
     }
     $values[$key] = $value;

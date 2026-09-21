@@ -1,5 +1,9 @@
 <?php
 
+$translate = require __DIR__ . '/setup-lexicon.php';
+$escape = static function ($value) {
+    return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+};
 $plantId = '';
 if (isset($modx) && $modx instanceof modX) {
     $setting = $modx->getObject('modSystemSetting', ['key' => 'growattstats_plant_id']);
@@ -7,20 +11,23 @@ if (isset($modx) && $modx instanceof modX) {
         $plantId = (string) $setting->get('value');
     }
 }
-$plantId = htmlspecialchars($plantId, ENT_QUOTES, 'UTF-8');
-
-return '<p>Enter your Growatt API credentials. Both settings are required for a new installation.
-On upgrade, leave fields blank to keep existing values.</p>
+return '<p>' . $escape($translate('growattstats_setup_intro')) . ' '
+    . $escape($translate('growattstats_setup_upgrade')) . '</p>
 <div class="form-group">
-    <label for="growattstats-token">growattstats_token: API token</label>
+    <label for="growattstats-token">' . $escape($translate('growattstats_setup_token')) . '</label>
     <input type="password" name="growattstats_token" id="growattstats-token"
         value="" autocomplete="new-password" style="width:100%">
 </div>
 <div class="form-group">
-    <label for="growattstats-plant-id">growattstats_plant_id: Plant ID</label>
+    <label for="growattstats-plant-id">' . $escape($translate('growattstats_setup_plant')) . '</label>
     <input type="text" name="growattstats_plant_id" id="growattstats-plant-id"
-        value="' . $plantId . '" style="width:100%">
+        value="' . $escape($plantId) . '" style="width:100%">
 </div>
-<p>A new installation creates an active refresh job every 15 minutes in CronManager.
-Schedule assets/components/cronmanager/cron.php on your server every minute to run it.
-Existing job schedules are preserved.</p>';
+<p>' . $escape($translate('growattstats_setup_cron')) . ' '
+    . $escape($translate('growattstats_setup_preserve')) . '</p>
+<p>' . $escape($translate('growattstats_setup_external')) . '</p>
+<pre>* * * * * /usr/bin/php /path/to/modx/assets/components/cronmanager/cron.php</pre>
+<p><a href="https://jako.github.io/CronManager/usage/" target="_blank" rel="noopener noreferrer">'
+    . $escape($translate('growattstats_setup_help')) . '</a> | '
+    . '<a href="https://man7.org/linux/man-pages/man5/crontab.5.html" target="_blank" rel="noopener noreferrer">'
+    . $escape($translate('growattstats_setup_crontab')) . '</a></p>';

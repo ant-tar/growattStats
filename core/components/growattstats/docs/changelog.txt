@@ -1,3 +1,6 @@
+growattStats 1.0.1-beta9 (2026-09-21)
+- Set Highcharts lang.locale explicitly so dates follow the component language, not the page HTML language.
+
 growattStats 1.0.1-beta8 (2026-09-21)
 - Size chart range buttons to translated labels to prevent overlap.
 

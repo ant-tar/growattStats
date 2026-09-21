@@ -717,8 +717,7 @@ class Service
 
         Highcharts.stockChart("growattstats-container", {
             chart: { zoomType: "x" },
-            time: { locale: labels.locale },
-            lang: { rangeSelectorZoom: labels.zoom, resetZoom: labels.reset_zoom,
+            lang: { locale: labels.locale, rangeSelectorZoom: labels.zoom, resetZoom: labels.reset_zoom,
                 resetZoomTitle: labels.reset_zoom_title, loading: labels.loading },
             xAxis: { minRange: 3600 * 1000 },
             rangeSelector: {

@@ -715,7 +715,7 @@ class Service
             return;
         }
 
-        Highcharts.stockChart("growattstats-container", {
+        var chart = Highcharts.stockChart("growattstats-container", {
             chart: { zoomType: "x" },
             lang: { locale: labels.locale, rangeSelectorZoom: labels.zoom, resetZoom: labels.reset_zoom,
                 resetZoomTitle: labels.reset_zoom_title, loading: labels.loading },
@@ -740,6 +740,8 @@ class Service
                 color: "#2e5a90"
             }]
         });
+        // Recalculate positions after SVG labels have their final measured widths.
+        chart.redraw(false);
     }
 
     initGrowattChart();

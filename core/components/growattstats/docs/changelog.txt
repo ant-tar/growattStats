@@ -1,3 +1,6 @@
+growattStats 1.0.1-beta10 (2026-09-21)
+- Recalculate range-button positions after initial SVG label measurement to prevent frontend overlap.
+
 growattStats 1.0.1-beta9 (2026-09-21)
 - Set Highcharts lang.locale explicitly so dates follow the component language, not the page HTML language.
 

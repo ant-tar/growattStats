@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">growattStats</title>
+  <desc id="description">A white G shaped like a radiating sun on a blue background.</desc>
+  <rect width="512" height="512" rx="88" fill="#087cf0"/>
+  <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M333.8 178.2A110 110 0 1 0 366 256H270" stroke-width="34"/>
+    <path d="M256 66v34M256 412v34M66 256h34M412 256h34M121.6 121.6l24 24M366.4 366.4l24 24M121.6 390.4l24-24M366.4 145.6l24-24" stroke-width="20"/>
+  </g>
+</svg>

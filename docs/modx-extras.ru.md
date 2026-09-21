@@ -132,7 +132,7 @@ systemctl is-active cron
 ## Файлы и поля каталога
 
 - Архив: `_build/dist/growattstats-1.0.1-beta11.transport.zip`, не ZIP исходников GitHub.
-- Основная иконка: `docs/assets/growattstats-icon.png`, синий знак, прозрачный PNG 512×512.
+- Основной логотип: `docs/assets/growattstats-logo.png`, белая G-солнце на синем фоне, PNG 512×512.
 - Зелёный вариант: `docs/assets/growattstats-icon-green.png`.
 - Превью с тремя вариантами не предназначено для поля иконки каталога.
 - Автор: Anton Tarasov (ant-tar).

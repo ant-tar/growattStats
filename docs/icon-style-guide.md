@@ -15,3 +15,11 @@ A sun enclosing three rising bars represents solar generation statistics.
 
 Use the SVG masters for future exports. Preview background panels are not part
 of the icons. Artwork is covered by the repository's component license.
+
+## Selected logo revision
+
+`assets/growattstats-logo.svg` and its 512 x 512 PNG export are the selected
+catalog artwork: a white G shaped like a sun, eight rounded rays, and a rounded
+blue (#087cf0) background. The G references the Growatt name without embedding
+the manufacturer wordmark. This user-requested blue tile supersedes the earlier
+transparent-canvas direction for the catalog logo. Earlier icons remain alternatives.

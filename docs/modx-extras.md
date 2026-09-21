@@ -14,8 +14,8 @@ and rebuild/retest. See [third-party notices](THIRD-PARTY.md) and the
 The component's GPL license does not license Highstock.
 
 This draft describes the current build. Do not label it stable or claim MODX 3
-support. The selected catalog icon can be blue (the cVent component family)
-or green (Growatt-inspired); upload the icon itself, not the comparison preview.
+support. The selected catalog icon is a white solar G on a rounded blue background.
+Upload growattstats-logo.png, not the earlier comparison preview.
 
 ## Listing data
 
@@ -34,7 +34,7 @@ or green (Growatt-inspired); upload the icon itself, not the comparison preview.
 | Languages | English, Russian |
 | Component license | GNU GPL v2 or later; bundled library has separate terms |
 | Transport package | growattstats-1.0.1-beta11.transport.zip |
-| Icon | docs/assets/growattstats-icon.png; transparent 512 x 512 PNG |
+| Icon | docs/assets/growattstats-logo.png; white solar G on blue, 512 x 512 PNG |
 | Alternative icon | docs/assets/growattstats-icon-green.png |
 | Website / source | https://github.com/ant-tar/growattStats |
 | Documentation | https://github.com/ant-tar/growattStats/blob/main/README.md |

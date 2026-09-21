@@ -33,8 +33,8 @@
   "repository": "https://github.com/ant-tar/growattStats",
   "documentation": "https://github.com/ant-tar/growattStats/blob/main/README.md",
   "support": "https://github.com/ant-tar/growattStats/issues",
-  "icon": "docs/assets/growattstats-icon.png",
-  "alternate_icon": "docs/assets/growattstats-icon-green.png",
+  "icon": "docs/assets/growattstats-logo.png",
+  "alternate_icon": "docs/assets/growattstats-icon.png",
   "default_job_minutes": 15,
   "external_scheduler_minutes": 1
 }

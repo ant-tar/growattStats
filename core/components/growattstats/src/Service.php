@@ -724,6 +724,7 @@ class Service
             rangeSelector: {
                 selected: 5,
                 inputEnabled: false,
+                buttonTheme: { width: null, padding: 6 },
                 buttons: [
                     { type: "month", count: 1, text: labels.range_month },
                     { type: "month", count: 3, text: labels.range_quarter },

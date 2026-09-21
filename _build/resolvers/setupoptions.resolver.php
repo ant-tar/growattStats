@@ -38,6 +38,9 @@ foreach ($values as $key => $value) {
             'xtype' => $key === 'growattstats_token' ? 'text-password' : 'textfield',
         ], '', true, true);
     }
+    if ($key === 'growattstats_token') {
+        $setting->set('xtype', 'text-password');
+    }
     $setting->set('value', $value);
     if (!$setting->save()) {
         return false;

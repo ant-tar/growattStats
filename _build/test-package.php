@@ -74,7 +74,14 @@ $payload = ['series' => [[946684800000,12.5]], 'today_energy' => 12.5, 'total_en
     'api' => ['today_energy' => 12.5,'total_energy' => 99]];
 file_put_contents($dataDir . 'chart-data.json', json_encode($payload));
 $hash = hash_file('sha256', $dataDir . 'chart-data.json');
+$token = $modx->getObject('modSystemSetting', ['key' => 'growattstats_token']);
+$token->set('xtype', 'textfield');
+$token->save();
 $check($p->install(['growattstats_token' => '','growattstats_plant_id' => '']), 'reinstall with blank credentials');
+$check(
+    $modx->getObject('modSystemSetting', ['key' => 'growattstats_token'])->get('xtype') === 'text-password',
+    'upgrade existing token field to password'
+);
 $check(
     $modx->getObject('modSystemSetting', ['key' => 'growattstats_token'])->get('value') === 'qa-token',
     'preserve token'

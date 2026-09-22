@@ -1,0 +1,3 @@
+Display today's and total solar generation, an interactive history chart, and a
+Manager dashboard widget using the Growatt API. Includes English and Russian
+translations and automatic refresh through CronManager. For MODX 2.8.x.

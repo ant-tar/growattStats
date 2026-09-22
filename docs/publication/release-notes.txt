@@ -1,0 +1,11 @@
+- Apache ECharts replaces Highstock on frontend and Manager dashboard.
+- Dashed gaps for missing records and multiple independent chart instances.
+
+- MODX 2 transport installer with required Growatt credentials.
+- CronManager dependency and automatic 15-minute refresh job.
+- English/Russian lexicons for cards, charts, settings, logs and setup.
+- Distinct generation cards with SVG icons on frontend and dashboard.
+- Localized chart dates and corrected range-button layout on first render.
+- Existing token settings are migrated to password fields during upgrades.
+- Historical readings and administrator-modified schedules survive upgrades.
+- PSR-4 service loading with MODX 2 compatibility and PSR-12 source checks.

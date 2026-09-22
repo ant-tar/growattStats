@@ -1,0 +1,29 @@
+The cron service must be running. On a Debian/Ubuntu server with systemd and
+the standard cron package, an administrator can run:
+
+```sh
+sudo apt-get install cron
+sudo systemctl enable --now cron
+systemctl is-active cron
+```
+
+As the site's operating-system user, run `crontab -e` and add:
+
+```cron
+* * * * * /usr/bin/php /path/to/modx/assets/components/cronmanager/cron.php
+```
+
+Replace the PHP and MODX paths. This is a user crontab, without a username column.
+Check the saved entry with `crontab -l`. On RHEL-compatible systems use the
+`cronie` package and `crond` service. On shared hosting use the Cron Jobs page
+or ask the host to enable the scheduler. On Windows use Task Scheduler with a
+one-minute trigger; see the repository README for the Laragon example.
+
+CronManager is invoked every minute, while growattStats defaults to every
+15 minutes. For hourly readings, change the growattStats job to 60 minutes.
+A daily history point is updated, not duplicated, by subsequent refreshes.
+
+Documentation:
+- https://jako.github.io/CronManager/usage/
+- https://man7.org/linux/man-pages/man5/crontab.5.html
+- https://help.ubuntu.com/community/CronHowto

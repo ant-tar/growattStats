@@ -1,0 +1,28 @@
+1. Install CronManager through MODX Package Management.
+2. Install the growattStats transport package and enter `growattstats_token`
+   and `growattstats_plant_id`. Both are required for a new installation.
+3. In System Settings, select the `growattstats` namespace and set
+   `growattstats_plant_name` to your plant's display name.
+4. Add `[[!growattShowChart]]` to a resource. The `growattStats` snippet is a
+   compatibility alias. Add the growattStats dashboard widget to your Manager dashboard.
+5. Configure the external scheduler as described below and verify a successful
+   run in the CronManager job log.
+
+Optional frontend example:
+
+```modx
+[[!growattShowChart? &plantName=`My solar plant`]]
+```
+
+For a custom layout, copy the `growattShowChart` chunk to `MySolarChart` and call:
+
+```modx
+[[!growattShowChart? &tpl=`MySolarChart`]]
+```
+
+Upgrades replace bundled chunks, so keep custom layouts under different names.
+Leave credential fields blank during upgrades to retain their current values.
+The password field masks the token in the editor; it does not encrypt its storage.
+
+Frontend language follows the active context's `cultureKey` (`en` or `ru`);
+the dashboard follows the Manager language. Clear the MODX cache after changing settings.

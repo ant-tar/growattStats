@@ -1,0 +1,6 @@
+- MODX Revolution 2.8.x (MODX 3 is not supported by this release).
+- PHP 7.4+ with cURL and JSON, including the CLI PHP used by cron.
+- CronManager 1.2.2 or later.
+- A valid Growatt API token and Plant ID with access to plant readings.
+- An external scheduler and database/filesystem access for its operating-system user.
+- Write access to MODX cache and assets/components/growattstats/data/.

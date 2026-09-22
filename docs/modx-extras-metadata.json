@@ -26,7 +26,7 @@
   ],
   "component_license": "GPL-2.0-or-later",
   "third_party": "Apache ECharts 5.6.0 (Apache-2.0), license and NOTICE included",
-  "publication_ready": false,
+  "publication_ready": true,
   "artifact": "growattstats-1.0.1-beta12.transport.zip",
   "artifact_bytes": 446388,
   "artifact_sha256": "eb6fcbca6822578f034130b16a38436659f3f20c84223831f895718b43771a25",
@@ -36,5 +36,9 @@
   "icon": "docs/assets/growattstats-logo.png",
   "alternate_icon": "docs/assets/growattstats-icon.png",
   "default_job_minutes": 15,
-  "external_scheduler_minutes": 1
+  "external_scheduler_minutes": 1,
+  "user_validation": "Approved after installed beta12 testing on 2026-09-22",
+  "submission_status": "prepared_not_submitted",
+  "submission_url": "https://extras.modx.com/submit-extra",
+  "publication_kit": "growattstats-1.0.1-beta12-publication-kit.zip"
 }

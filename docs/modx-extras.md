@@ -8,7 +8,12 @@ No submission has been made. Release metadata and archive checksum are in
 
 The current archive uses Apache ECharts 5.6.0 with its license and NOTICE.
 Highstock has been removed. See [third-party notices](THIRD-PARTY.md).
-User validation of this beta is still required before submission.
+The user approved the installed beta12 build after testing on 2026-09-22.
+The publication kit is ready for submission as a Beta release; nothing has been submitted.
+
+The submission form at https://extras.modx.com/submit-extra requires a MODX account.
+Its authenticated fields could not be inspected. The table below covers package/release
+metadata; match labels and available category choices in the actual form.
 
 This draft describes the current build. Do not label it stable or claim MODX 3
 support. The selected catalog icon is a white solar G on a rounded blue background.
@@ -59,6 +64,10 @@ power generation. Show today's energy and total energy in separate cards,
 explore recorded history with a range selector and navigator, and view the
 same plant statistics in the MODX Manager dashboard.
 
+Charts use Apache ECharts with locally hosted assets. Multiple charts can coexist on
+one page. Dashed segments identify missing readings without inventing generation data.
+No Highcharts files or commercial chart-library license are required by this release.
+
 The installer requests a Growatt API token and Plant ID. The token setting uses
 a password field in the Manager. Set a display name for your plant and add the
 frontend snippet to a resource. The default chunks can be copied and customized.
@@ -83,6 +92,7 @@ integration and is not affiliated with or endorsed by Growatt.
 
 - Today's generation and total generation cards.
 - Interactive history chart with date ranges and a navigator.
+- Apache ECharts, local assets, and clearly marked gaps in recorded history.
 - MODX Manager dashboard widget.
 - English and Russian translations, including chart dates.
 - Installer fields for the Growatt API token and Plant ID.
@@ -126,6 +136,9 @@ For a custom layout, copy the `growattShowChart` chunk to `MySolarChart` and cal
 Upgrades replace bundled chunks, so keep custom layouts under different names.
 Leave credential fields blank during upgrades to retain their current values.
 The password field masks the token in the editor; it does not encrypt its storage.
+
+Frontend language follows the active context's `cultureKey` (`en` or `ru`);
+the dashboard follows the Manager language. Clear the MODX cache after changing settings.
 
 ## Scheduler setup
 

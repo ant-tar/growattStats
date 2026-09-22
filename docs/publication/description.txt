@@ -1,0 +1,32 @@
+GrowattStats connects a MODX 2 website to the Growatt API to display solar
+power generation. Show today's energy and total energy in separate cards,
+explore recorded history with a range selector and navigator, and view the
+same plant statistics in the MODX Manager dashboard.
+
+Charts use Apache ECharts with locally hosted assets. Multiple charts can coexist on
+one page. Dashed segments identify missing readings without inventing generation data.
+No Highcharts files or commercial chart-library license are required by this release.
+
+The installer requests a Growatt API token and Plant ID. The token setting uses
+a password field in the Manager. Set a display name for your plant and add the
+frontend snippet to a resource. The default chunks can be copied and customized.
+English and Russian lexicons cover the interface, chart labels, settings and
+installer.
+
+CronManager is required. Installation creates an active refresh job with a
+15-minute interval. An external scheduler must invoke CronManager every minute;
+the Growatt request runs only when the component's job is due. Administrators
+can change the job interval in CronManager. Upgrades preserve the existing job
+schedule, credentials and recorded history.
+
+History is accumulated from successful API refreshes. It is stored locally as
+public chart data, with one point per day updated by later refreshes. Failed
+requests leave the previous readings available. The component does not download
+missing historical dates automatically.
+
+This beta targets MODX Revolution 2.8.x. It is an independent community
+integration and is not affiliated with or endorsed by Growatt.
+
+Requirements: MODX Revolution 2.8.x, PHP 7.4+ with cURL and JSON, CronManager 1.2.2+, and a valid Growatt API token and Plant ID. An external scheduler must invoke CronManager every minute. MODX 3 is not supported.
+
+Licenses: component GPL-2.0-or-later; Apache ECharts Apache-2.0 with license and NOTICE included.

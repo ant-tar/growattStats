@@ -1,0 +1,9 @@
+- Today's generation and total generation cards.
+- Interactive history chart with date ranges and a navigator.
+- Apache ECharts, local assets, and clearly marked gaps in recorded history.
+- MODX Manager dashboard widget.
+- English and Russian translations, including chart dates.
+- Installer fields for the Growatt API token and Plant ID.
+- Automatic CronManager job registration without duplicate jobs on upgrade.
+- Customizable MODX chunks and a configurable plant display name.
+- Preserved credentials and history during upgrades.

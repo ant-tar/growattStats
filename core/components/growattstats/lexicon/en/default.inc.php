@@ -1,6 +1,16 @@
 <?php
 
 include __DIR__ . '/setting.inc.php';
+$_lang['growattstats_compare_gap'] = 'Dashed line: missing daily readings, not measured generation.';
+$_lang['growattstats_compare_start'] = 'Period start';
+$_lang['growattstats_compare_end'] = 'Period end';
+$_lang['growattstats_compare_empty'] = 'No recorded history yet.';
+$_lang['growattstats_compare_error'] = 'Could not display the chart.';
+$_lang['growattstats_compare_period'] = 'Chart period';
+$_lang['growattstats_compare_note'] = 'Recorded daily generation. All comparison charts use the same history, in UTC.';
+$_lang['growattstats_desc_echarts'] = 'Preview Growatt history with Apache ECharts';
+$_lang['growattstats_desc_dygraphs'] = 'Preview Growatt history with Dygraphs';
+$_lang['growattstats_desc_chartjs'] = 'Preview Growatt history with Chart.js';
 
 $_lang['growattstats'] = 'growattStats';
 $_lang['growattstats_err_class'] = 'Could not load growattStats class.';

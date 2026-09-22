@@ -105,6 +105,7 @@ foreach (['css', 'js', 'images', 'connector.php'] as $path) {
 }
 $vehicle->resolve('php', ['source' => $installerDirectory . 'setupoptions.resolver.php']);
 $vehicle->resolve('php', ['source' => $installerDirectory . 'cronjob.resolver.php']);
+$vehicle->resolve('php', ['source' => __DIR__ . '/resolvers/echarts.resolver.php']);
 $builder->putVehicle($vehicle);
 
 $settings = require __DIR__ . '/elements/settings.php';

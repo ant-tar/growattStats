@@ -36,9 +36,9 @@ foreach (['en' => $en, 'ru' => $ru] as $language => $messages) {
         $check(strpos($html, $messages['growattstats_generation']) !== false, $language . ' ' . $name . ' label');
         $check(strpos($html, '[[%') === false, $language . ' ' . $name . ' lexicon tags resolved');
     }
-    $script = $service->getChartScript([[1, 2]]);
-    preg_match('/var labels = (.*);/', $script, $match);
-    $labels = json_decode($match[1], true);
+    $markup = $service->getChartMarkup([[1, 2]]);
+    preg_match('/data-gs-echart="([^"]+)"/', $markup, $match);
+    $labels = json_decode(html_entity_decode($match[1], ENT_QUOTES, 'UTF-8'), true)['labels'];
     $check($labels['series'] === $messages['growattstats_series'], $language . ' chart series');
     $check($labels['locale'] === $language, $language . ' chart dates locale');
     foreach (['setup.options.php', 'dist/installer/setup.options.php'] as $file) {

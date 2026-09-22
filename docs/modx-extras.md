@@ -1,17 +1,14 @@
 # MODX Extras listing copy
 
-Prepared for **1.0.1-beta11**. These are copy-ready English listing texts.
+Prepared for **1.0.1-beta12**. These are copy-ready English listing texts.
 No submission has been made. Release metadata and archive checksum are in
 [modx-extras-metadata.json](modx-extras-metadata.json).
 
 ## Maintainer note (do not paste into the product description)
 
-The current archive bundles Highstock 12.1.2. Applicable redistribution rights
-have not been confirmed. Resolve this before submitting the archive: document
-permission covering distribution through MODX Extras, or replace the library
-and rebuild/retest. See [third-party notices](THIRD-PARTY.md) and the
-[Highcharts OEM FAQ](https://shop.highcharts.com/faq).
-The component's GPL license does not license Highstock.
+The current archive uses Apache ECharts 5.6.0 with its license and NOTICE.
+Highstock has been removed. See [third-party notices](THIRD-PARTY.md).
+User validation of this beta is still required before submission.
 
 This draft describes the current build. Do not label it stable or claim MODX 3
 support. The selected catalog icon is a white solar G on a rounded blue background.
@@ -24,7 +21,7 @@ Upload growattstats-logo.png, not the earlier comparison preview.
 | Name | growattStats |
 | Suggested slug | growattstats |
 | Author | Anton Tarasov (ant-tar) |
-| Version | 1.0.1-beta11 |
+| Version | 1.0.1-beta12 |
 | Release status | Beta |
 | MODX compatibility | MODX Revolution 2.8.x; package constraint >=2.8.0 <3.0.0 |
 | Tested environment | MODX 2.8.8, PHP 8.1.34, CronManager 1.5.1, MySQL |
@@ -33,7 +30,7 @@ Upload growattstats-logo.png, not the earlier comparison preview.
 | Database | MySQL |
 | Languages | English, Russian |
 | Component license | GNU GPL v2 or later; bundled library has separate terms |
-| Transport package | growattstats-1.0.1-beta11.transport.zip |
+| Transport package | growattstats-1.0.1-beta12.transport.zip |
 | Icon | docs/assets/growattstats-logo.png; white solar G on blue, 512 x 512 PNG |
 | Alternative icon | docs/assets/growattstats-icon-green.png |
 | Website / source | https://github.com/ant-tar/growattStats |
@@ -162,7 +159,10 @@ Documentation:
 - https://man7.org/linux/man-pages/man5/crontab.5.html
 - https://help.ubuntu.com/community/CronHowto
 
-## Release notes / What's new in 1.0.1-beta11
+## Release notes / What's new in 1.0.1-beta12
+
+- Apache ECharts replaces Highstock on frontend and Manager dashboard.
+- Dashed gaps for missing records and multiple independent chart instances.
 
 - MODX 2 transport installer with required Growatt credentials.
 - CronManager dependency and automatic 15-minute refresh job.
@@ -183,11 +183,11 @@ dashboard, API, CronManager, MODX 2.
 ## Known limitations
 
 - Beta; tested on MODX 2.8.8 / PHP 8.1.34, not every permitted version combination.
-- One chart per page.
+- Custom Highcharts-specific chunks/scripts require migration; default chunks support multiple charts.
 - Daily history uses UTC dates, which may differ from the plant's local timezone.
 - No automatic recovery of readings for missed historical days.
 - Plant/API availability depends on the supplied Growatt account credentials.
-- Highstock has separate licensing; see the maintainer note before distribution.
+- Apache ECharts ships under Apache-2.0 with upstream license and NOTICE.
 
 ## Submission reference
 

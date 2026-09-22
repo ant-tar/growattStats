@@ -1,4 +1,25 @@
-# MODX 2 validation ? 2026-09-20
+# MODX 2 validation
+
+## Beta12: Apache ECharts migration (2026-09-22)
+
+- Replaced Highstock with pinned Apache ECharts 5.6.0 in both default frontend and dashboard views.
+- PHP runtime, English/Russian lexicons, PSR-12 and JavaScript syntax checks pass.
+- Disposable transport lifecycle passes: required credentials, clean install/uninstall,
+  password setting migration, preserved settings/history/schedule, and no duplicate cron job.
+- Upgraded the Laragon site to beta12; saved settings and history hashes were unchanged.
+- The known original Highstock file was removed; the archive contains no Highstock,
+  experimental Dygraphs/Chart.js renderers, runtime history or credentials.
+- Chrome frontend and generated Manager widget: 1,243 points, one historical gap,
+  Russian dates, six working period buttons, no overlap at 1,280px and 390px.
+- Empty history, single reading, independent instances, dashed gap with a null separator,
+  and disposal after DOM removal pass `_build/test-charts.cjs`.
+- No JavaScript exceptions or Highstock requests were observed.
+- Manager testing uses MODX's actual widget renderer with Manager CSS in Chrome;
+  full authenticated Manager navigation is still a manual user check.
+- MODX is actually 2.8.8 / PHP 8.1.34, despite the site's MODX-2.8.6 directory name.
+- Package installed locally; publication to MODX Extras remains pending user validation.
+
+## Historical validation: 2026-09-20
 
 Environment: Laragon `MODX-2.8.6.test`, actually MODX 2.8.8, PHP 8.1.34.
 A separate installation/database was used for destructive lifecycle tests.

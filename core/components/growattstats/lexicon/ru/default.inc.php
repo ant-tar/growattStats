@@ -1,6 +1,17 @@
 <?php
 
 include __DIR__ . '/setting.inc.php';
+$_lang['growattstats_compare_gap'] = 'Пунктир — пропуск суточных показаний, а не измеренная выработка.';
+$_lang['growattstats_compare_start'] = 'Начало периода';
+$_lang['growattstats_compare_end'] = 'Конец периода';
+$_lang['growattstats_compare_empty'] = 'История показаний пока пуста.';
+$_lang['growattstats_compare_error'] = 'Не удалось отобразить график.';
+$_lang['growattstats_compare_period'] = 'Период графика';
+$_lang['growattstats_compare_note'] =
+    'Суточная выработка. Все сравниваемые графики используют одну историю, даты в UTC.';
+$_lang['growattstats_desc_echarts'] = 'Просмотр истории Growatt через Apache ECharts';
+$_lang['growattstats_desc_dygraphs'] = 'Просмотр истории Growatt через Dygraphs';
+$_lang['growattstats_desc_chartjs'] = 'Просмотр истории Growatt через Chart.js';
 
 $_lang['growattstats'] = 'growattStats';
 $_lang['growattstats_err_class'] = 'Не удалось загрузить класс growattStats.';

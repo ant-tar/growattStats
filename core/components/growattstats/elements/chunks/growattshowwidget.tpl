@@ -90,10 +90,6 @@
     color: #2c3e50;
 }
 
-#growattstats-container {
-    width: 100%;
-    min-height: 260px;
-}
 
 @media (max-width: 767px) {
     .js-growattstats-widget .growattstats-widget-top {
@@ -133,6 +129,6 @@
 
     <div class="growattstats-widget-chart">
         <div class="growattstats-widget-title">[[+plant_name:htmlent]]</div>
-        <div id="growattstats-container"></div>
+        [[+chart]]
     </div>
 </div>

@@ -1,3 +1,11 @@
+growattStats 1.0.1-beta12 (2026-09-22)
+- Replace Highstock with Apache ECharts 5.6.0 on frontend and Manager dashboard.
+- Share chart rendering, localized dates and wrapping range controls across both views.
+- Show missing daily readings as dashed gaps; preserve the stored history.
+- Support multiple independent charts, empty history and single-point history.
+- Ship ECharts license and NOTICE; remove the known original Highstock file on upgrade.
+- Keep comparison prototypes outside the installed component.
+
 growattStats 1.0.1-beta11 (2026-09-21)
 - Migrate existing token settings to the password field type during upgrades, preserving the token value.
 

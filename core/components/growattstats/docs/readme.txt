@@ -4,17 +4,17 @@ Growatt solar generation statistics, a frontend history chart, and a MODX Manage
 
 ## Status and requirements
 
-Version **1.0.1-beta11** targets MODX Revolution **2.8.x**, PHP **7.4+** with cURL and JSON,
+Version **1.0.1-beta12** targets MODX Revolution **2.8.x**, PHP **7.4+** with cURL and JSON,
 and CronManager 1.2.2 or later (tested with 1.5.1). Tested locally on MODX **2.8.8 / PHP 8.1.34**. MODX 3 is a separate future stage.
 
-This is a validation build, not yet cleared for submission to MODX Extras.
-The bundled Highstock library has separate licensing: redistribution rights must be confirmed
-or the chart implementation replaced before public release. See [third-party notices](docs/THIRD-PARTY.md).
+This beta build uses Apache ECharts 5.6.0 for frontend and Manager charts.
+ECharts license and NOTICE are included; Highstock is no longer bundled.
+See [third-party notices](docs/THIRD-PARTY.md). User validation precedes MODX Extras submission.
 
 ## Installation
 
 1. Install CronManager.
-2. Upload `growattstats-1.0.1-beta11.transport.zip` through Extras > Installer.
+2. Upload `growattstats-1.0.1-beta12.transport.zip` through Extras > Installer.
 3. The installer requests **growattstats_token** (Growatt API token) and
    **growattstats_plant_id** (plant identifier). New installations require both.
 4. Add `[[!growattShowChart]]` to a resource, or use the `growattStats` alias.
@@ -61,7 +61,10 @@ before upgrades or uninstalling. A failed request leaves the previous readings a
 Fresh readings are obtained by the cron snippet; viewing a page is not a periodic refresh mechanism.
 API failures are logged with a `[growattStats]` prefix without raw response bodies or tokens.
 A local site's timezone and plant timezone may differ: daily points currently use UTC dates.
-Only one chart per page is supported (`growattstats-container`).
+Multiple default charts can coexist independently on one page. Missing daily readings are
+shown as dashed gaps, not invented measurements. Charts use local ECharts assets (no CDN).
+Custom chunks should render `[[+chart]]`; the former `growattstats-container` helper remains
+available for a single legacy custom chunk. Highcharts-specific custom JavaScript must be migrated.
 
 ## Automatic refresh
 

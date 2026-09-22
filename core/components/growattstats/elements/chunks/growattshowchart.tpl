@@ -118,10 +118,6 @@
     line-height: 1.5;
 }
 
-#growattstats-container {
-    width: 100%;
-    min-height: 400px;
-}
 
 @media (max-width: 767px) {
     .js-growattstats .growattstats-grid {
@@ -166,7 +162,7 @@
 
     <div class="growattstats-chart">
         <div class="growattstats-title">[[+plant_name:htmlent]]</div>
-        <div id="growattstats-container"></div>
+        [[+chart]]
         <p class="growattstats-note">
             [[%growattstats_chart_note:htmlent]]
         </p>

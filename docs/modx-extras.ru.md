@@ -5,13 +5,10 @@
 
 ## Статус перед отправкой
 
-Подготовлена версия **1.0.1-beta11**. Публикация в MODX Extras ещё не выполнялась.
-Текущий архив содержит Highstock 12.1.2; подтверждения права на его распространение
-в составе компонента пока нет. До отправки нужно подтвердить соответствующие права
-или заменить библиотеку, пересобрать пакет и повторить проверки.
-Лицензия GPL компонента не распространяется автоматически на Highstock.
-Основание: [документация Highcharts о распространении/OEM](https://shop.highcharts.com/faq)
-и [перечень сторонних библиотек](THIRD-PARTY.md).
+Подготовлена версия **1.0.1-beta12**. Публикация в MODX Extras ещё не выполнялась.
+Графики фронтенда и панели управления используют Apache ECharts 5.6.0.
+Highstock исключён из поставки. Лицензия Apache-2.0 и NOTICE включены в пакет:
+[перечень сторонних библиотек](THIRD-PARTY.md). Версия остаётся тестовой до проверки пользователем.
 
 ## Название
 
@@ -118,7 +115,7 @@ systemctl is-active cron
 - [Документация crontab](https://man7.org/linux/man-pages/man5/crontab.5.html)
 - [Руководство Ubuntu](https://help.ubuntu.com/community/CronHowto)
 
-## Что нового в 1.0.1-beta11
+## Что нового в 1.0.1-beta12
 
 - Установщик с обязательными полями Growatt API token и Plant ID.
 - Зависимость CronManager и автоматическое создание задания обновления.
@@ -131,12 +128,12 @@ systemctl is-active cron
 
 ## Файлы и поля каталога
 
-- Архив: `_build/dist/growattstats-1.0.1-beta11.transport.zip`, не ZIP исходников GitHub.
+- Архив: `_build/dist/growattstats-1.0.1-beta12.transport.zip`, не ZIP исходников GitHub.
 - Основной логотип: `docs/assets/growattstats-logo.png`, белая G-солнце на синем фоне, PNG 512×512.
 - Зелёный вариант: `docs/assets/growattstats-icon-green.png`.
 - Превью с тремя вариантами не предназначено для поля иконки каталога.
 - Автор: Anton Tarasov (ant-tar).
-- Лицензия кода компонента: GNU GPL v2 or later; условия Highstock проверяются отдельно.
+- Лицензия кода компонента: GNU GPL v2 or later; Apache ECharts поставляется под Apache-2.0.
 - Категории по смыслу: Integration, Statistics, Dashboard — выбрать доступные аналоги в форме.
 - Теги: Growatt, solar, energy, photovoltaic, statistics, chart, dashboard, API, CronManager, MODX 2.
 - Сайт: https://github.com/ant-tar/growattStats
@@ -145,7 +142,7 @@ systemctl is-active cron
 
 Не указывайте поддержку MODX 3 или статус stable. Публичный GitHub Release
 с архивом пока не создан; текущий транспортный архив можно загрузить в форму напрямую
-после решения вопроса распространения Highstock.
+после завершения проверки новой версии.
 
-Ограничения текущей версии: один график на странице, даты дневной истории в UTC,
+Ограничения текущей версии: даты дневной истории в UTC,
 отсутствие автоматического восстановления пропущенных дней.

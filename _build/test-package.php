@@ -96,7 +96,7 @@ $check($modx->getCount('modCronjob', ['snippet' => $cronSnippet->get('id')]) ===
 $check(hash_file('sha256', $dataDir . 'chart-data.json') === $hash, 'preserve chart history');
 $modx->setOption('growattstats_plant_name', 'QA plant');
 $out = $modx->runSnippet('growattShowChart');
-$check(strpos($out, '12.5') !== false && strpos($out, 'growattstats-container') !== false, 'render installed snippet');
+$check(strpos($out, '12.5') !== false && strpos($out, 'data-gs-echart') !== false, 'render installed snippet');
 $widget = $modx->getObject('modDashboardWidget', ['name' => 'growattStats']);
 $modx->loadClass('modManagerController', '', false, true);
 $controller = new class ($modx) extends modManagerController {

@@ -1,0 +1,11 @@
+.gs-echart { width: 100%; min-width: 0; color: #24374a; background: #fff; }
+.gs-echart, .gs-echart * { box-sizing: border-box; }
+.gs-echart .gs-periods { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.gs-echart .gs-periods button { appearance: none; width: auto; height: auto; margin: 0; border: 1px solid #dce3eb; border-radius: 5px; background: #f7f9fc; color: #33475b; padding: 6px 10px; font: 13px/1.4 system-ui, sans-serif; cursor: pointer; white-space: nowrap; }
+.gs-echart .gs-periods button[aria-pressed="true"] { color: #fff; background: #2e5a90; border-color: #2e5a90; }
+.gs-echart .gs-periods button:focus-visible { outline: 2px solid #087cf0; outline-offset: 3px; }
+.gs-echart .gs-plot { height: 360px; width: 100%; min-width: 0; position: relative; }
+.js-growattstats-widget .gs-echart .gs-plot { height: 280px; }
+.gs-echart .gs-chart-status, .gs-echart .gs-gap-note { font: 12px/1.5 system-ui, sans-serif; color: #64748b; margin: 10px 0 0; }
+.gs-echart .gs-gap-note::before { content: ''; display: inline-block; width: 28px; border-top: 2px dashed #94a3b8; margin-right: 8px; vertical-align: middle; }
+@media (max-width: 480px) { .gs-echart .gs-plot { height: 300px; } }

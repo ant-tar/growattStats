@@ -32,6 +32,12 @@ try {
     $check($data['plant_name'] === 'Test plant', 'honor snippet plantName');
     $script = $service->getChartScript([[1, '</script><script>alert(1)</script>']]);
     $check(strpos($script, '</script><script>alert') === false, 'escape inline JSON');
+    $markup = $service->getChartMarkup([[1, '</script><script>alert(1)</script>']]);
+    $check(strpos($markup, '[[') === false, 'chart JSON cannot become MODX tags');
+    $check(strpos($markup, '<script>') === false, 'chart JSON cannot inject HTML');
+    preg_match('/data-gs-echart="([^"]+)"/', $markup, $match);
+    $decoded = json_decode(html_entity_decode($match[1], ENT_QUOTES, 'UTF-8'), true);
+    $check($decoded['series'][0][0] === 1, 'chart payload round-trips through attribute escaping');
     $form = require __DIR__ . '/setup.options.php';
     $check(strpos($form, 'name="growattstats_token"') !== false, 'installer requests canonical token');
     $check(strpos($form, 'name="growattstats_plant_id"') !== false, 'installer requests Plant ID');

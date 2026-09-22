@@ -1,0 +1,18 @@
+.gs-comparison { border: 1px solid #dce3eb; border-radius: 8px; padding: 18px; background: #fff; color: #24374a; min-width: 0; }
+.gs-comparison, .gs-comparison * { box-sizing: border-box; }
+.gs-comparison h3 { margin: 0 0 16px; font: 600 15px/1.4 system-ui, sans-serif; }
+.gs-periods { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.gs-periods button { appearance: none; border: 1px solid #dce3eb; border-radius: 5px; background: #f7f9fc; color: #33475b; padding: 6px 10px; font: 13px/1.4 system-ui, sans-serif; cursor: pointer; }
+.gs-periods button[aria-pressed="true"] { color: #fff; background: #2e5a90; border-color: #2e5a90; }
+.gs-periods button:focus-visible, .gs-ranges input:focus-visible { outline: 2px solid #087cf0; outline-offset: 3px; }
+.gs-plot { height: 360px; width: 100%; min-width: 0; position: relative; }
+.gs-overview { height: 64px; position: relative; margin-top: 12px; display: none; }
+.gs-ranges { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.gs-ranges label { font: 12px/1.5 system-ui, sans-serif; min-width: 0; }
+.gs-ranges input { width: 100%; accent-color: #2e5a90; }
+.gs-chart-status, .gs-chart-note { font: 12px/1.5 system-ui, sans-serif; color: #66778a; margin: 10px 0 0; }
+.gs-gap-note { font: 12px/1.5 system-ui, sans-serif; color: #64748b; margin: 10px 0 0; }
+.gs-gap-note::before { content: ''; display: inline-block; width: 28px; border-top: 2px dashed #94a3b8; margin-right: 8px; vertical-align: middle; }
+.gs-comparison .dygraph-axis-label { font: 11px/1.3 system-ui, sans-serif; }
+.gs-comparison .dygraph-legend { font: 12px/1.4 system-ui, sans-serif; width: auto !important; max-width: 95%; padding: 4px; }
+@media (max-width: 480px) { .gs-comparison { padding: 12px; } .gs-plot { height: 300px; } }

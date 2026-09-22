@@ -662,6 +662,8 @@ class Service
             'updated_at' => $payload['updated_at'] ?? null,
         ]);
 
+        $data['chart'] = $this->getChartMarkup($series);
+
         $data['today_revenue'] = round($price * (float)$data['today_energy'], 2);
         $data['total_revenue'] = round($price * (float)$data['total_energy'], 2);
 
@@ -678,76 +680,29 @@ class Service
 
     public function getAssetTags()
     {
-        return '<script src="' . $this->config['jsUrl'] . 'highstock.js"></script>';
+        $assets = htmlspecialchars($this->config['assetsUrl'], ENT_QUOTES, 'UTF-8');
+        return '<link rel="stylesheet" href="' . $assets . 'css/chart.css?v=beta12">'
+            . '<script src="' . $assets . 'js/vendor/echarts.min.js"></script>'
+            . '<script src="' . $assets . 'js/chart.js?v=beta12"></script>';
     }
 
+    public function getChartMarkup(array $series = [])
+    {
+        return Chart::render($this->modx, $series);
+    }
+
+    /** Compatibility helper for custom chunks using the former container ID. */
     public function getChartScript(array $series = [])
     {
-        $seriesJson = json_encode(array_values($series), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-        if ($seriesJson === false) {
-            $seriesJson = '[]';
-        }
-        // Manager widget output passes through the MODX tag parser: avoid literal [[...]].
-        $seriesJson = str_replace(
-            ['[', ']'],
-            ['\\u005B', '\\u005D'],
-            json_encode($seriesJson, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)
-        );
-
-        $labels = [];
-        foreach (
-            ['series', 'locale', 'range_month', 'range_quarter', 'range_half_year', 'range_ytd',
-            'range_year', 'range_all', 'zoom', 'reset_zoom', 'reset_zoom_title', 'loading'] as $key
-        ) {
-            $labels[$key] = $this->modx->lexicon('growattstats_' . $key);
-        }
-        $labelsJson = json_encode($labels, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-        $labelsJson = str_replace(['[', ']'], ['\\u005B', '\\u005D'], $labelsJson);
-
-        $script = '<script>
-(function () {
-    var seriesData = JSON.parse(' . $seriesJson . ');
-    var labels = ' . $labelsJson . ';
-
-    function initGrowattChart() {
-        if (typeof Highcharts === "undefined") {
-            setTimeout(initGrowattChart, 100);
-            return;
-        }
-
-        var chart = Highcharts.stockChart("growattstats-container", {
-            chart: { zoomType: "x" },
-            lang: { locale: labels.locale, rangeSelectorZoom: labels.zoom, resetZoom: labels.reset_zoom,
-                resetZoomTitle: labels.reset_zoom_title, loading: labels.loading },
-            xAxis: { minRange: 3600 * 1000 },
-            rangeSelector: {
-                selected: 5,
-                inputEnabled: false,
-                buttonTheme: { width: null, padding: 6 },
-                buttons: [
-                    { type: "month", count: 1, text: labels.range_month },
-                    { type: "month", count: 3, text: labels.range_quarter },
-                    { type: "month", count: 6, text: labels.range_half_year },
-                    { type: "ytd", text: labels.range_ytd },
-                    { type: "year", count: 1, text: labels.range_year },
-                    { type: "all", text: labels.range_all }
-                ]
-            },
-            title: { text: null },
-            series: [{
-                name: labels.series,
-                data: seriesData,
-                color: "#2e5a90"
-            }]
-        });
-        // Recalculate positions after SVG labels have their final measured widths.
-        chart.redraw(false);
-    }
-
-    initGrowattChart();
-}());
-</script>';
-        return $script;
+        $markup = json_encode($this->getChartMarkup($series), JSON_HEX_TAG | JSON_HEX_AMP
+            | JSON_HEX_APOS | JSON_HEX_QUOT);
+        return '<script>(function () { function mount() {'
+            . 'var node = document.getElementById("growattstats-container");'
+            . 'if (node && !node.querySelector("[data-gs-echart]")) { node.innerHTML = ' . $markup . '; }'
+            . 'if (window.GrowattStatsCharts) { window.GrowattStatsCharts.start(); }'
+            . '} if (document.readyState === "loading") {'
+            . 'document.addEventListener("DOMContentLoaded", mount, {once: true}); } else { mount(); }'
+            . '}());</script>';
     }
 
     public function registerChartScript(array $series = [])
